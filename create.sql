@@ -1,0 +1,29 @@
+-- CREATE DATABASE IF NOT EXISTS moviesign CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+-- USE moviesign;
+
+CREATE TABLE users (
+  user_ID       INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  email         VARCHAR(255) NOT NULL UNIQUE,
+  pw_hash     VARCHAR(255) NOT NULL,
+  zip_code      VARCHAR(10)  NOT NULL,
+  created_at    TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE watchlist_items (
+  watchlist_ID   INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  user_ID        INT UNSIGNED NOT NULL,
+  film_ID        VARCHAR(50)  NOT NULL,
+  title          VARCHAR(255) NOT NULL,
+  poster_url     VARCHAR(512),
+  added_at       TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_ID) REFERENCES users(user_ID) ON DELETE CASCADE,
+  UNIQUE KEY uq_user_film (user_ID, film_ID)
+);
+
+CREATE TABLE sessions (
+  token      VARCHAR(64)  NOT NULL PRIMARY KEY,
+  user_ID    INT UNSIGNED NOT NULL,
+  expires_at TIMESTAMP    NOT NULL,
+  created_at TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_ID) REFERENCES users(user_ID) ON DELETE CASCADE
+);
