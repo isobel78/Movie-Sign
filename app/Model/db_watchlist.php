@@ -1,7 +1,6 @@
-<!--
-Atlanta Daniel
-May 2026
--->
+<!-- Atlanta Daniel -->
+<!-- May 2026 -->
+<!-- db_watchlist.php - Class for doing CRUD queries on the watchlist table -->
 
 <?php
 
@@ -16,13 +15,12 @@ class WatchlistDB {
         $dbConn = $db->getDbConn();
 
         if ($dbConn) {
-            //create the query string
-            $query = "SELECT *
-                      FROM watchlist_items
-                      WHERE user_ID = '$userID';";
-            
-            //execute the query
-            return $dbConn->query($query);
+            $stmt = $dbConn->prepare("SELECT * 
+                                      FROM watchlist_items 
+                                      WHERE user_ID = ?");
+            $stmt->bind_param("i", $userID);
+            $stmt->execute();
+            return $stmt->get_result();
         } else {
             return false;
         }

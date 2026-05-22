@@ -1,7 +1,6 @@
-<!--
-Atlanta Daniel
-May 2026
--->
+<!-- Atlanta Daniel -->
+<!-- May 2026 -->
+<!-- db.php - Class for connecting to the database -->
 
 <?php 
 
