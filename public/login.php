@@ -1,8 +1,8 @@
-<!-- Atlanta Daniel -->
-<!-- May 2026 -->
-<!-- login.php -->
-
 <?php
+// Atlanta Daniel
+// May 2026
+// login.php
+
 session_start();
 
 //check if user is already logged in

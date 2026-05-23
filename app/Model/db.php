@@ -1,8 +1,7 @@
-<!-- Atlanta Daniel -->
-<!-- May 2026 -->
-<!-- db.php - Class for connecting to the database -->
-
 <?php 
+// Atlanta Daniel
+// May 2026
+// db.php - Class for connecting to the database
 
 class Database {
     //DB connection parametrs

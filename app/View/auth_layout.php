@@ -1,9 +1,8 @@
-<!-- Atlanta Daniel -->
-<!-- May 2026 -->
-<!-- auth_layout.php - layout helper for auth pages (login / register) -->
-<!-- Call render_auth_page($title, $content_html) to output a full page. -->
-
 <?php
+// Atlanta Daniel
+// May 2026
+// auth_layout.php - layout helper for auth pages (login / register)
+// Call render_auth_page($title, $content_html) to output a full page
 
 function render_auth_page($title, $content_html) {
 ?>
@@ -13,176 +12,11 @@ function render_auth_page($title, $content_html) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🚨MovieSign! - <?= htmlspecialchars($title) ?></title>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
     
-    <style>
-        /* ── Reset & base ── */
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-        :root {
-            --red:     #e8182a;
-            --red-dim: #9b111e;
-            --dark:    #0d0d0f;
-            --panel:   #18181c;
-            --border:  #2e2e35;
-            --muted:   #6b6b78;
-            --text:    #f0eff4;
-            --sub:     #a8a7b4;
-            --yellow:  #f5c542;
-            --font-display: 'Bebas Neue', sans-serif;
-            --font-body:    'DM Sans', sans-serif;
-        }
-
-        body {
-            min-height: 100dvh;
-            background: var(--dark);
-            color: var(--text);
-            font-family: var(--font-body);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 1.5rem;
-            /* Subtle film-grain texture */
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
-        }
-
-        /* ── Logo / wordmark ── */
-        .logo {
-            font-family: var(--font-display);
-            font-size: clamp(2.4rem, 8vw, 3.8rem);
-            letter-spacing: 0.04em;
-            color: var(--red);
-            text-align: center;
-            line-height: 1;
-            margin-bottom: 0.25rem;
-            text-shadow: 0 0 24px rgba(232,24,42,0.45);
-            animation: pulse-glow 2.8s ease-in-out infinite;
-        }
-        .logo span { color: var(--text); }
-
-        @keyframes pulse-glow {
-            0%, 100% { text-shadow: 0 0 24px rgba(232,24,42,0.45); }
-            50%       { text-shadow: 0 0 48px rgba(232,24,42,0.80); }
-        }
-
-        .tagline {
-            font-size: 0.78rem;
-            letter-spacing: 0.18em;
-            text-transform: uppercase;
-            color: var(--muted);
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-
-        /* ── Card ── */
-        .card {
-            width: 100%;
-            max-width: 420px;
-            background: var(--panel);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 2rem 2rem 2.4rem;
-            box-shadow: 0 8px 48px rgba(0,0,0,0.55);
-        }
-
-        .card h1 {
-            font-family: var(--font-display);
-            font-size: 1.8rem;
-            letter-spacing: 0.06em;
-            color: var(--text);
-            margin-bottom: 1.4rem;
-        }
-
-        /* ── Flash message ── */
-        .flash {
-            border-radius: 8px;
-            padding: 0.75rem 1rem;
-            font-size: 0.88rem;
-            margin-bottom: 1.2rem;
-            line-height: 1.45;
-        }
-        .flash.error   { background: rgba(232,24,42,0.15); border: 1px solid var(--red-dim); color: #ff9499; }
-        .flash.success { background: rgba(245,197,66,0.12); border: 1px solid #7a6318; color: var(--yellow); }
-
-        /* ── Form elements ── */
-        .field { margin-bottom: 1.1rem; }
-
-        label {
-            display: block;
-            font-size: 0.8rem;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            color: var(--sub);
-            margin-bottom: 0.4rem;
-        }
-
-        input[type="email"],
-        input[type="password"],
-        input[type="text"] {
-            width: 100%;
-            background: var(--dark);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            color: var(--text);
-            font-family: var(--font-body);
-            font-size: 1rem;
-            padding: 0.7rem 0.9rem;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-        input:focus {
-            border-color: var(--red);
-            box-shadow: 0 0 0 3px rgba(232,24,42,0.18);
-        }
-
-        .hint {
-            font-size: 0.75rem;
-            color: var(--muted);
-            margin-top: 0.3rem;
-        }
-
-        /* ── Submit button ── */
-        .btn-primary {
-            width: 100%;
-            margin-top: 0.6rem;
-            padding: 0.85rem;
-            background: var(--red);
-            color: #fff;
-            font-family: var(--font-display);
-            font-size: 1.3rem;
-            letter-spacing: 0.1em;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background 0.18s, transform 0.1s;
-        }
-        .btn-primary:hover  { background: #c8111f; }
-        .btn-primary:active { transform: scale(0.98); }
-
-        /* ── Footer link ── */
-        .switch-link {
-            text-align: center;
-            font-size: 0.86rem;
-            color: var(--muted);
-            margin-top: 1.4rem;
-        }
-        .switch-link a {
-            color: var(--red);
-            text-decoration: none;
-            font-weight: 600;
-        }
-        .switch-link a:hover { text-decoration: underline; }
-
-        /* ── Light divider ── */
-        .divider {
-            border: none;
-            border-top: 1px solid var(--border);
-            margin: 1.2rem 0;
-        }
-    </style>
-
+    <link rel="stylesheet" href="../public/styles/auth.css">
 </head>
 
 <body>

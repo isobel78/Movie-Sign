@@ -1,16 +1,14 @@
-<!-- Atlanta Daniel -->
-<!-- May 2026 -->
-<!-- auth.php — Controller to handle all POST actions: registration, login, and logout -->
-
-
  <?php
+// Atlanta Daniel
+// May 2026
+// auth.php — Controller to handle all POST actions: registration, login, and logout
 
 session_start();
 
 require_once(__DIR__ . '/../Model/db_user.php');
 
-// Helper function: 
-// redirect with a flash message stored in session
+//Helper function: 
+//redirect with a flash message stored in session
 function redirect_with_msg($url, $type, $message) {
     $_SESSION['flash_type'] = $type; // 'error' or 'success'
     $_SESSION['flash_message'] = $message;
