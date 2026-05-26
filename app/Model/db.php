@@ -4,20 +4,13 @@
 // db.php - Class for connecting to the database
 
 class Database {
+
     //DB connection parameters
-    /* TESTING */
-    private $host = "localhost";
-    private $dbname = "moviesign";
-    private $username = "root";
-    private $password = "";
-
-    /* LIVE
-    private $host = "sql206.infinityfree.com";
-    private $dbname = "if0_41978271_moviesign";
-    private $username = "if0_41978271";
-    private $password = "yYiNA8JeXBwv";
-    */
-
+    private $host;
+    private $dbname;
+    private $username;
+    private $password;
+    
     //DB connection and error messages
     private $conn;
     private $conn_error = "";
@@ -28,6 +21,17 @@ class Database {
         //Turn off error reporting since we handle errors manually
         mysqli_report(MYSQLI_REPORT_OFF);
 
+        //local deployment
+        $config = require __DIR__ . '/db_config_local.php';
+
+        //live deployment
+        //$config = require __DIR__ . '/db_config.php';
+        
+        $this->host = $config['host'];
+        $this->dbname = $config['dbname'];
+        $this->username = $config['username'];
+        $this->password = $config['password'];
+        
         //Connect to the database
         $this->conn = mysqli_connect($this->host, $this->username, $this->password, $this->dbname);
 

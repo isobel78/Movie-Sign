@@ -1,6 +1,9 @@
 #.DS_Store files on MacOS
 .DS_Store
 
+# DB config file
+app/Model/db_config.php
+
 # Logs
 logs
 *.log
