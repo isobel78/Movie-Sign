@@ -107,5 +107,3 @@ class UserDB {
         return $stmt->num_rows > 0;
     }
 }
-
-?>

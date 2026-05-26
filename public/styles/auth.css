@@ -167,3 +167,64 @@ input:focus {
     border-top: 1px solid var(--border);
     margin: 1.2rem 0;
 }
+
+/* -- Account page -- */
+
+.section-hint {
+    font-size: 0.82rem;
+    opacity: 0.65;
+    margin: -0.4rem 0 1rem;
+}
+
+/* -- Zip row: input + geo button side by side -- */
+.zip-row {
+    display: flex;
+    gap: 0.6rem;
+    align-items: stretch;
+}
+.zip-row input {
+    flex: 1;
+    min-width: 0;
+}
+
+/* -- Geolocation button -- */
+.btn-geo {
+    white-space: nowrap;
+    padding: 0.55rem 0.9rem;
+    border: 1px solid var(--red, #e53935);
+    background: transparent;
+    color: var(--red, #e53935);
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+}
+.btn-geo:hover:not(:disabled) {
+    background: var(--red, #e53935);
+    color: #fff;
+}
+.btn-geo:disabled { opacity: 0.45; cursor: default; }
+
+/* -- Remember-me checkbox row -- */
+.remember-row {
+    margin-top: -0.3rem;
+}
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.88rem;
+    cursor: pointer;
+    user-select: none;
+}
+.checkbox-label input[type="checkbox"] {
+    width: auto;
+    margin: 0;
+    accent-color: var(--red, #e53935);
+}
+
+/* -- Geo status line -- */
+#geo-status {
+    transition: color 0.2s;
+}

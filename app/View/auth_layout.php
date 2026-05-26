@@ -6,6 +6,7 @@
 
 function render_auth_page($title, $content_html) {
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>

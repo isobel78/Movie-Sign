@@ -5,6 +5,10 @@
 
 session_start();
 
+//resume from a remember-me cookie if the session has expired
+require_once(__DIR__ . '/../app/Model/db_session.php');
+SessionDB::resumeFromCookie();
+
 //check if user is already logged in
 // if not, direct to login page
 if (empty($_SESSION['user_id'])) {
@@ -51,7 +55,15 @@ if (!empty($_SESSION['flash_message'])) {
 <header>
     <div class="wordmark">🚨Movie<span>Sign</span>!</div>
     <div class="user-bar">
-        <span><?= $user_email ?> &middot; <?= $user_zip ?></span>
+        <span class="user-email"><?= $user_email ?></span>
+        <span class="zip-display" id="zip-display" title="Your theater search location">
+            📍 <span id="zip-value"><?= $user_zip ?></span>
+        </span>
+
+        <button type="button" id="geo-btn-header" class="btn-geo-sm" title="Update location from GPS">⊙</button>
+
+        <a href="account.php" class="btn-account">⚙ Account</a>
+
         <form method="POST" action="../app/Controller/auth.php" style="margin:0;">
             <input type="hidden" name="action" value="logout">
             <button type="submit" class="btn-logout">Sign out</button>
@@ -255,6 +267,78 @@ function escHtml(str) {
 }
 </script>
 
+<script>
+// Header geolocation button — updates zip without a page reload.
+// Reverse-geocodes via BigDataCloud
+(function () {
+    const geoBtn = document.getElementById('geo-btn-header');
+    const zipValue = document.getElementById('zip-value');
+    if (!geoBtn) return;
+
+    geoBtn.addEventListener('click', () => {
+        if (!navigator.geolocation) {
+            alert('Geolocation is not supported by your browser.');
+            return;
+        }
+
+        geoBtn.disabled = true;
+        geoBtn.textContent = '⌛';
+
+        navigator.geolocation.getCurrentPosition(
+            async (pos) => {
+                const { latitude, longitude } = pos.coords;
+                try {
+                    const res  = await fetch(
+                        `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`
+                    );
+                    const data = await res.json();
+                    const zip  = (data.postcode ?? '').replace(/\s/g, '').slice(0, 10);
+
+                    if (zip && /^\d{5}(-\d{4})?$/.test(zip)) {
+                        // Persist via AJAX to the auth controller.
+                        const fd = new FormData();
+                        fd.append('action', 'update_zip');
+                        fd.append('zip', zip);
+
+                        const save = await fetch('../app/Controller/auth.php', {
+                            method: 'POST',
+                            body: fd
+                        });
+                        const result = await save.json();
+
+                        if (result.success) {
+                            zipValue.textContent = zip;
+                            geoBtn.textContent = '✅';
+                            setTimeout(() => { geoBtn.textContent = '⊙'; }, 2000);
+                        } else {
+                            geoBtn.textContent = '⚠️';
+                            setTimeout(() => { geoBtn.textContent = '⊙'; }, 2000);
+                        }
+                    } else {
+                        alert('Could not determine a US zip code. Please update it in Account Settings.');
+                        geoBtn.textContent = '⊙';
+                    }
+                } catch (_) {
+                    alert('Reverse geocoding failed. Please update your zip in Account Settings.');
+                    geoBtn.textContent = '⊙';
+                }
+                geoBtn.disabled = false;
+            },
+            (err) => {
+                const msgs = {
+                    1: 'Location access denied.',
+                    2: 'Position unavailable.',
+                    3: 'Location request timed out.',
+                };
+                alert((msgs[err.code] ?? 'Geolocation error.') + ' Update your zip in Account Settings.');
+                geoBtn.disabled = false;
+                geoBtn.textContent = '⊙';
+            },
+            { timeout: 10000, maximumAge: 300000 }
+        );
+    });
+})();
+</script>
 
 </body>
 </html>

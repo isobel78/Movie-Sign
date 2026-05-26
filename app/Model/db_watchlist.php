@@ -113,4 +113,3 @@ class WatchlistDB {
         return $stmt->execute() && $stmt->affected_rows > 0;
     }
 }
-?>

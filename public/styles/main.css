@@ -27,7 +27,7 @@ body {
     font-family: var(--font-body);
 }
 
-/* ── Header ─────────────────────────────────────────────────────────── */
+/* ── Header ── */
 header {
     display: flex;
     align-items: center;
@@ -293,3 +293,53 @@ main {
 }
 .empty-state p { font-size: 0.9rem; }
   
+/* -- Header user-bar extras -- */
+.user-email {
+    opacity: 0.75;
+    font-size: 0.82rem;
+}
+
+.zip-display {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.2rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--red, #e53935);
+    background: rgba(229, 57, 53, 0.08);
+    border-radius: 4px;
+    padding: 0.2rem 0.55rem;
+}
+
+/* -- Small geo button in the header -- */
+.btn-geo-sm {
+    background: none;
+    border: 1px solid rgba(229, 57, 53, 0.4);
+    border-radius: 4px;
+    color: var(--red, #e53935);
+    cursor: pointer;
+    font-size: 1rem;
+    line-height: 1;
+    padding: 0.22rem 0.5rem;
+    transition: background 0.15s, border-color 0.15s;
+}
+.btn-geo-sm:hover:not(:disabled) {
+    background: rgba(229, 57, 53, 0.1);
+    border-color: var(--red, #e53935);
+}
+.btn-geo-sm:disabled { opacity: 0.45; cursor: default; }
+
+/* -- Account nav link in header -- */
+.btn-account {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: inherit;
+    text-decoration: none;
+    padding: 0.3rem 0.65rem;
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 4px;
+    transition: background 0.15s;
+}
+.btn-account:hover {
+    background: rgba(255,255,255,0.1);
+}

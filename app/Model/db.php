@@ -4,11 +4,19 @@
 // db.php - Class for connecting to the database
 
 class Database {
-    //DB connection parametrs
+    //DB connection parameters
+    /* TESTING */
     private $host = "localhost";
     private $dbname = "moviesign";
     private $username = "root";
     private $password = "";
+
+    /* LIVE
+    private $host = "sql206.infinityfree.com";
+    private $dbname = "if0_41978271_moviesign";
+    private $username = "if0_41978271";
+    private $password = "yYiNA8JeXBwv";
+    */
 
     //DB connection and error messages
     private $conn;
@@ -61,5 +69,3 @@ class Database {
         return $this->password;
     }
 }
-
-?>

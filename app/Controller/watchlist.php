@@ -79,4 +79,3 @@ else {
     header('Location: ../../public/index.php');
     exit;
 }
-?>

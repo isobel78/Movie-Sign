@@ -98,4 +98,3 @@ foreach (($data['results'] ?? []) as $movie) {
 }
 
 echo json_encode(['results' => array_slice($movies, 0, 8)]);
-?>
