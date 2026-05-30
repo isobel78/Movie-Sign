@@ -24,7 +24,7 @@ require_once(__DIR__ . '/../app/Model/db_watchlist.php');
 // Change to 'us' when deploying with live US showtime data
 // 'us' is limited to 75 eval requests
 
-define('MOVIEGLU_ENV', 'sandbox');  //change to 'us' when ready for live data
+define('MOVIEGLU_ENV', 'us');  //change to 'us' when ready for live data
 
 $userID = (int) $_SESSION['user_id'];
 $user_email = htmlspecialchars($_SESSION['user_email'] ?? '');

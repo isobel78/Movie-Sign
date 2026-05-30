@@ -256,6 +256,7 @@ main {
     line-height: 1.3;
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
@@ -311,6 +312,15 @@ main {
     padding: 0.2rem 0.55rem;
 }
 
+/* Sandbox / testing zip display variant */
+.zip-display.zip-testing {
+    color: #ffb300;
+    background: rgba(255, 179, 0, 0.1);
+}
+.zip-display.zip-testing::before {
+    content: '🧪 ';
+}
+
 /* -- Small geo button in the header -- */
 .btn-geo-sm {
     background: none;
@@ -342,4 +352,218 @@ main {
 }
 .btn-account:hover {
     background: rgba(255,255,255,0.1);
+}
+
+/* SHOWTIMES SECTION  */
+/* Label row: "We've Got Movie Sign!" + button */
+.showtimes-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.btn-showtimes-refresh {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #fff;
+    background: var(--red, #e53935);
+    border: none;
+    border-radius: 5px;
+    padding: 0.35rem 0.9rem;
+    cursor: pointer;
+    transition: background 0.15s, opacity 0.15s;
+    white-space: nowrap;
+}
+.btn-showtimes-refresh:hover:not(:disabled) {
+    background: #c62828;
+}
+.btn-showtimes-refresh:disabled {
+    opacity: 0.55;
+    cursor: default;
+}
+
+/* Panel states */
+.showtimes-idle,
+.showtimes-empty,
+.showtimes-error {
+    text-align: center;
+    padding: 2rem 1rem;
+    color: rgba(255, 255, 255, 0.65);
+    font-size: 0.93rem;
+    line-height: 1.55;
+}
+
+.showtimes-note {
+    font-size: 0.82rem;
+    opacity: 0.7;
+    margin-top: 0.5rem;
+}
+
+.showtimes-empty-icon {
+    font-size: 2.4rem;
+    margin-bottom: 0.6rem;
+}
+
+.showtimes-error {
+    color: #ef9a9a;
+}
+.showtimes-error-icon {
+    font-size: 2rem;
+    display: block;
+    margin-bottom: 0.4rem;
+}
+
+/* Loading spinner */
+.showtimes-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 2.5rem 1rem;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.9rem;
+}
+.showtimes-spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid rgba(229, 57, 53, 0.25);
+    border-top-color: var(--red, #e53935);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* MOVIE SIGN alert banner */
+.moviesign-alert {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    background: var(--red, #e53935);
+    color: #fff;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.5rem;
+    letter-spacing: 0.08em;
+    padding: 0.65rem 1rem;
+    border-radius: 6px;
+    margin-bottom: 1rem;
+    animation: siren-flash 1s ease-in-out 3;
+}
+@keyframes siren-flash {
+    0%, 100% { background: var(--red, #e53935); }
+    50%       { background: #b71c1c; }
+}
+.moviesign-siren {
+    font-size: 1.6rem;
+    animation: siren-spin 0.6s linear infinite;
+    display: inline-block;
+}
+@keyframes siren-spin {
+    0%   { transform: rotate(-15deg); }
+    50%  { transform: rotate(15deg);  }
+    100% { transform: rotate(-15deg); }
+}
+
+/* Showtime cards grid */
+.showtimes-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+}
+
+.st-card {
+    display: flex;
+    gap: 0.9rem;
+    background: var(--surface, #1e1e1e);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 8px;
+    padding: 0.85rem;
+    align-items: flex-start;
+}
+
+.st-poster {
+    width: 56px;
+    min-width: 56px;
+    border-radius: 4px;
+    object-fit: cover;
+    aspect-ratio: 2/3;
+    background: rgba(255,255,255,0.05);
+}
+.st-poster-placeholder {
+    width: 56px;
+    min-width: 56px;
+    aspect-ratio: 2/3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.6rem;
+    background: rgba(255,255,255,0.05);
+    border-radius: 4px;
+}
+
+.st-body {
+    flex: 1;
+    min-width: 0;
+}
+
+.st-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.15rem;
+    letter-spacing: 0.04em;
+    color: #fff;
+    margin-bottom: 0.5rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.st-cinema {
+    margin-bottom: 0.45rem;
+}
+.st-cinema-name {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: rgba(255,255,255,0.6);
+    margin-bottom: 0.25rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.st-times {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+}
+.st-time {
+    font-size: 0.8rem;
+    font-weight: 600;
+    background: rgba(229, 57, 53, 0.15);
+    color: var(--red, #e53935);
+    border: 1px solid rgba(229, 57, 53, 0.3);
+    border-radius: 4px;
+    padding: 0.15rem 0.45rem;
+    white-space: nowrap;
+}
+
+/* Geo button active state (GPS successfully used) */
+.btn-geo-sm.geo-active {
+    color: #43a047;
+    border-color: rgba(67, 160, 71, 0.5);
+    background: rgba(67, 160, 71, 0.1);
+}
+
+/* "or" divider between zip input and geo button on account.php */
+.zip-or {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0 0.1rem;
+    flex-shrink: 0;
 }

@@ -1,0 +1,32 @@
+Films / Movies
+Here is a list of valid film ID’s and titles in the Sandbox:
+
+film_id	name
+25	    Stargate
+1685	The Adventures of Priscilla, Queen of the Desert
+2756	Max Max
+3427	From Dusk Till Dawn
+4167	Woman in the Dunes
+6650	The English Patient
+7772	Raiders of the Lost Ark
+8675	Lawrence of Arabia – 70mm
+21448	Three Kings
+59906	There will be Blood
+62407	The Fall
+184126	The Martian
+
+
+Cinemas / Movie theaters
+Here is a list of valid Cinemas in the Sandbox.
+
+If you are testing nearby cinemas, we recommend you use this gelocation: -22.0;14.0
+
+cinema_id	cinema name	    Address	            Location (Latitude | Longitude)
+8842	    Cinema 1	    Dune	            -24.731020 | 15.471640
+8845	    Cinema 2	    Deadvlei	        -24.759233 | 15.292389
+8910	    Cinema 3	    Dune 45	            -24.731020 | 15.471640
+8930	    Cinema 4	    Hiddenvlei	        -24.748602 | 15.335606
+9435	    Cinema 5	    Sesriem Canyon	    -24.519194 | 15.790539
+10636	    Cinema 6	    Jetty	            -24.519194 | 15.790539
+42963	    Cinema 7	    Welwitschia Plains	-22.669146 | 15.028214
+45353	    Cinema 8	    Eduard Bohlen	    -23.996033 | 14.457391

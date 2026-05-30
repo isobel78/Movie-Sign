@@ -37,8 +37,7 @@ if ($action === 'add') {
         redirect('error', 'Missing movie data. Please try your search again.');
     }
 
-    //sanitize title and poster URL before storing
-    $title = htmlspecialchars($title, ENT_QUOTES, 'UTF-8');
+    //sanitize poster URL before storing
     $posterURL = $posterURL ? filter_var($posterURL, FILTER_SANITIZE_URL) : null;
 
     //film_ID must only contain digits (TMDB returns numeric IDs)
@@ -49,7 +48,7 @@ if ($action === 'add') {
     $added = WatchlistDB::addToWatchlist($userID, $filmID, $title, $posterURL);
 
     if ($added) {
-        redirect('success', "🎬 <strong>" . htmlspecialchars($title, ENT_QUOTES, 'UTF-8') . "</strong> added to your watchlist.");
+        redirect('success', "🎬 " . $title . " added to your watchlist.");
     } else {
         //affected_rows === 0 means it was already on the list (INSERT IGNORE)
         redirect('error', "That film is already on your watchlist.");

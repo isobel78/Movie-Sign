@@ -122,7 +122,7 @@ geoBtn.addEventListener('click', () => {
                 const zip  = data.postcode?.replace(/\s/g, '').slice(0, 10) ?? '';
 
                 if (zip && /^\d{5}(-\d{4})?$/.test(zip)) {
-                    zipField.value    = zip;
+                    zipField.value = zip;
                     geoZipField.value = zip;
                     geoStatus.textContent = `✅ Location found: ${zip}`;
                 } else {
