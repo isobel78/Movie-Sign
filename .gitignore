@@ -4,6 +4,7 @@
 # config files
 app/Model/db_config.php
 app/Model/movieglu_config.php
+app/Model/TMDB_config.php
 
 # Logs
 logs

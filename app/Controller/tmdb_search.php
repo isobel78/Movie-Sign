@@ -13,7 +13,8 @@ if (empty($_SESSION['user_id'])) {
 }
 
 //TMDB access token
-define('TMDB_BEARER', 'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI5MzJhYjVkYzQ1M2RhNTdiZTFlNjcwZjgyOGFkMTE3MyIsIm5iZiI6MTc3MDUwODk2Mi4xMTUsInN1YiI6IjY5ODdkMmEyZGYzNmMxMzhjNzNhOWJjNyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.fW5sTF9QxnVlRGNtYUoPcnEjdVr-kjJNOh1rm_hTJrs');
+$tmdbConfig = require __DIR__ . '/../Model/tmdb_config.php';
+define('TMDB_BEARER', $tmdbConfig['bearer_token']);
 
 //search query params
 $query = trim($_GET['q'] ?? '');

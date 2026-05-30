@@ -24,7 +24,6 @@ if (empty($_SESSION['user_id'])) {
 }
 
 //MovieGlu credentials
-
 $movieGluCreds = require __DIR__ . '/../Model/movieglu_config.php';
 
 const MOVIEGLU_BASE = 'https://api-gate2.movieglu.com/';
