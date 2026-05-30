@@ -1,8 +1,9 @@
 #.DS_Store files on MacOS
 .DS_Store
 
-# DB config file
+# config files
 app/Model/db_config.php
+app/Model/movieglu_config.php
 
 # Logs
 logs

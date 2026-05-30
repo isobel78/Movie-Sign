@@ -25,22 +25,7 @@ if (empty($_SESSION['user_id'])) {
 
 //MovieGlu credentials
 
-const MOVIEGLU_CREDENTIALS = [
-    'sandbox' => [
-        'client' => 'MOVI_296',
-        'x-api-key' => 'uj3R6NAqEb30SQRh9tf3V8YSXxlIGvyH7uTxsVNM',
-        'authorization' => 'Basic TU9WSV8yOTZfWFg6UG1NdWd3c05sYzhy',
-        'territory' => 'XX',
-        'geo' => '-22.0;14.0',  //test sandbox location
-    ],
-    'us' => [
-        'client' => 'MOVI_296',
-        'x-api-key' => 'GrVcvDHNhg6ZoRDlS0WHM9Ie0VbBnz0P404ZQtwa',
-        'authorization' => 'Basic TU9WSV8yOTY6NDE4emdzMElxWlhq',
-        'territory' => 'US',
-        'geo' => null,  //set from user coords at runtime
-    ],
-];
+$movieGluCreds = require __DIR__ . '/../Model/movieglu_config.php';
 
 const MOVIEGLU_BASE = 'https://api-gate2.movieglu.com/';
 const MOVIEGLU_API_VERSION = 'v201';
@@ -48,7 +33,7 @@ const MOVIEGLU_API_VERSION = 'v201';
 //Resolve environment passed from index.php
 //default to sandbox for safety
 $env = ($_GET['env'] ?? 'sandbox') === 'us' ? 'us' : 'sandbox';
-$creds = MOVIEGLU_CREDENTIALS[$env];
+$creds = $movieGluCreds[$env];
 
 //Resolve geolocation
 // Sandbox always uses its fixed test coordinates
