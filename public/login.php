@@ -46,6 +46,10 @@ ob_start();
     <button type="submit" class="btn-primary">🚨MovieSign!</button>
 </form>
 
+<p class="switch-link" style="margin-top:0.9rem;">
+    <a href="forgot_password.php">Forgot your password?</a>
+</p>
+
 <p class="switch-link" style="margin-top:1.2rem;">
     No account yet? <a href="register.php">Create one</a>
 </p>

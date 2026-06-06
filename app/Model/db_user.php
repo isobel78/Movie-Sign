@@ -106,4 +106,67 @@ class UserDB {
 
         return $stmt->num_rows > 0;
     }
+
+    //password reset
+    // Store a time-limited reset token for the given email
+    // Returns true on success, false if email not found or DB error
+    public static function setResetToken(string $email, string $token, string $expires): bool {
+        $db = new Database();
+        $dbConn = $db->getDbConn();
+
+        if (!$dbConn) return false;
+
+        $stmt = $dbConn->prepare(
+            "UPDATE users
+                SET reset_token = ?, 
+                    reset_token_expires = ?
+              WHERE email = ?"
+        );
+
+        $stmt->bind_param("sss", $token, $expires, $email);
+        $stmt->execute();
+
+        return $stmt->affected_rows > 0; // 0 = email not in DB
+    }
+
+    //look up a user by a valid (non-expired) reset token.
+    public static function getUserByResetToken(string $token): array|false {
+        $db = new Database();
+        $dbConn = $db->getDbConn();
+
+        if (!$dbConn) return false;
+
+        $stmt = $dbConn->prepare(
+            "SELECT * 
+             FROM users
+             WHERE reset_token = ?
+               AND reset_token_expires > NOW()"
+        );
+
+        $stmt->bind_param("s", $token);
+        $stmt->execute();
+
+        $result = $stmt->get_result();
+        $user   = $result->fetch_assoc();
+
+        return $user ?: false;
+    }
+
+    //clear the reset token after it has been used (or invalidated)
+    public static function clearResetToken(int $userID): void {
+        $db = new Database();
+        $dbConn = $db->getDbConn();
+
+        if (!$dbConn) return;
+
+        $stmt = $dbConn->prepare(
+            "UPDATE users
+                SET reset_token = NULL, 
+                    reset_token_expires = NULL
+              WHERE user_ID = ?"
+        );
+        
+        $stmt->bind_param("i", $userID);
+        $stmt->execute();
+    }
 }

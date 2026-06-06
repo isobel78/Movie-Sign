@@ -19,7 +19,7 @@ if (empty($_SESSION['user_id'])) {
 require_once(__DIR__ . '/../app/Model/db_watchlist.php');
 
 // MovieGlu environment switch 
-// 'sandbox' uses free test data and shows "Testing" in the location display
+// 'sandbox' uses free test data and shows "Sandbox" in the location display
 // 'sandbox' allows for 10,000 req/month, fake data at lat -22.0 lng 14.0
 // Change to 'us' when deploying with live US showtime data
 // 'us' is limited to 75 eval requests
@@ -29,7 +29,7 @@ define('MOVIEGLU_ENV', 'sandbox');  //change to 'us' when ready for live data
 $userID = (int) $_SESSION['user_id'];
 $user_email = htmlspecialchars($_SESSION['user_email'] ?? '');
 $user_zip = htmlspecialchars($_SESSION['user_zip'] ?? '');
-$zip_display = (MOVIEGLU_ENV === 'sandbox') ? 'Testing' : $user_zip;
+$zip_display = (MOVIEGLU_ENV === 'sandbox') ? 'Sandbox' : $user_zip;
 
 //load user's watchlist from DB
 $watchlist = WatchlistDB::getWatchlist($userID);
@@ -62,7 +62,7 @@ if (!empty($_SESSION['flash_message'])) {
 <body>
 
 <header>
-    <div class="wordmark">🚨Movie<span>Sign</span>!</div>
+    <a href="index.php" class="wordmark" title="home">🚨Movie<span>Sign</span>!</a>
     <div class="user-bar">
         <span class="user-email"><?= $user_email ?></span>
         <span class="zip-display<?= (MOVIEGLU_ENV === 'sandbox') ? ' zip-testing' : '' ?>" id="zip-display" title="<?= (MOVIEGLU_ENV === 'sandbox') ? 'Sandbox mode active' : 'Your theater search location' ?>">
@@ -91,6 +91,11 @@ if (!empty($_SESSION['flash_message'])) {
         <div class="showtimes-idle">
             <p>Hit <strong>Check Showtimes</strong> to see which of your watchlist films are playing near you today.</p>
             <p class="showtimes-note">📍 Uses your saved zip code location.</p>
+            <br />
+            <div class="showtime-date-row">
+                <label for="showtime-date" class="showtime-date-label">📅 Date</label>
+                <input type="date" id="showtime-date" class="showtime-date-input">
+            </div>
             <br />
             <button type="button" id="showtimes-refresh-btn" class="btn-showtimes-refresh" title="Check showtimes near you">
                 Check Showtimes
@@ -373,11 +378,21 @@ function escHtml(str) {
 
 <script>
 //MovieGlu Showtimes
-// Pulls today's showtimes and cross-references them against titles on user's watchlist
+// Pulls sshowtimes for the selected dateand cross-references them against titles on user's watchlist
 
 (function () {
     const refreshBtn = document.getElementById('showtimes-refresh-btn');
     const panel = document.getElementById('showtimes-panel');
+    const datePicker = document.getElementById('showtime-date');
+
+    //default to today in the user's local timezone (not UTC)
+    const todayLocal = new Date();
+    const yyyy = todayLocal.getFullYear();
+    const mm = String(todayLocal.getMonth() + 1).padStart(2, '0');
+    const dd = String(todayLocal.getDate()).padStart(2, '0');
+    if (datePicker) datePicker.value = `${yyyy}-${mm}-${dd}`;
+
+    let selectedDate = `${yyyy}-${mm}-${dd}`;
 
     //collect watchlist titles
     const watchlistTitles = [
@@ -396,11 +411,17 @@ function escHtml(str) {
             return;
         }
 
+        window.scrollTo({ top: 0, behavior: 'smooth' });
         setLoading(true);
+        setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 100);
 
         try {
+            const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+            selectedDate = datePicker ? datePicker.value : `${yyyy}-${mm}-${dd}`;
             const params = new URLSearchParams({
                 titles: JSON.stringify(watchlistTitles),
+                tz,
+                date: selectedDate,
             });
 
             const res = await fetch(`../app/Controller/movieglu_showtimes.php?${params}&env=<?= urlencode(MOVIEGLU_ENV) ?>`);
@@ -421,6 +442,7 @@ function escHtml(str) {
 
     //convert "HH:MM" 24-hour string to "H:MM AM/PM"
     function to12h(time24) {
+        if (!time24 || time24.includes(' ')) return time24; //already formatted
         const [hStr, mStr] = time24.split(':');
         if (!hStr || !mStr) return time24;
         let h = parseInt(hStr, 10);
@@ -447,25 +469,48 @@ function escHtml(str) {
             <span class="showtimes-error-icon">⚠️</span>
             <p>${escHtml(msg)}</p>
             <p class="showtimes-note">Check that your location is set and try again.</p>
+            <div class="showtime-date-row showtime-date-retry">
+                <label for="showtime-date-error" class="showtime-date-label">📅 Try a different date</label>
+                <input type="date" id="showtime-date-error" class="showtime-date-input" value="${escHtml(selectedDate)}">
+                <button type="button" class="btn-showtimes-refresh btn-showtimes-retry" id="error-retry-btn">Check Showtimes</button>
+            </div>
         </div>`;
+        document.getElementById('error-retry-btn').addEventListener('click', () => {
+            const errorPicker = document.getElementById('showtime-date-error');
+            if (errorPicker && datePicker) datePicker.value = errorPicker.value;
+            refreshBtn.click();
+        });
     }
 
     function renderShowtimes(showtimes, allShowing) {
-        if (showtimes.length === 0) {
-            
-            let msg = `<div class="showtimes-empty">
-                <div class="showtimes-empty-icon">🎭</div>
-                <p>None of your watchlist films are showing near you today.</p>`;
+    if (showtimes.length === 0) {
+        
+        let msg = `<div class="showtimes-empty">
+            <div class="showtimes-empty-icon">🎭</div>
+            <p>None of your watchlist films are showing near you on this date.</p>`;
 
-            //build a helpful message listing what IS showing
-            if (allShowing.length > 0) {
-                msg += `<p class="showtimes-note">Currently showing nearby:<br>
-                    <em>${allShowing.map(escHtml).join(', ')}</em></p>`;
-            }
-            msg += `</div>`;
-            panel.innerHTML = msg;
-            return;
+        if (allShowing.length > 0) {
+            msg += `<p class="showtimes-note">Currently showing nearby:<br>
+                <em>${allShowing.map(escHtml).join(', ')}</em></p>`;
         }
+
+        msg += `<div class="showtime-date-row showtime-date-retry">
+            <label for="showtime-date-empty" class="showtime-date-label">📅 Try a different date</label>
+            <input type="date" id="showtime-date-empty" class="showtime-date-input" value="${escHtml(selectedDate)}">
+            <button type="button" class="btn-showtimes-refresh btn-showtimes-retry" id="empty-retry-btn">Check Showtimes</button>
+        </div>
+        </div>`;
+
+        panel.innerHTML = msg;
+
+        document.getElementById('empty-retry-btn').addEventListener('click', () => {
+            const emptyPicker = document.getElementById('showtime-date-empty');
+            if (emptyPicker && datePicker) datePicker.value = emptyPicker.value;
+            refreshBtn.click();
+        });
+
+        return;
+    }
 
         //if there are showtime matches — MOVIE SIGN!
         let html = `<div class="moviesign-alert">
@@ -507,8 +552,21 @@ function escHtml(str) {
             </div>`;
         }
 
-        html += `</div>`;
+        html += `</div>
+        <div class="showtime-date-row showtime-date-retry">
+            <label for="showtime-date-retry" class="showtime-date-label">📅 Try a different date</label>
+            <input type="date" id="showtime-date-retry" class="showtime-date-input">
+            <button type="button" class="btn-showtimes-refresh btn-showtimes-retry">Check Showtimes</button>
+        </div>`;
         panel.innerHTML = html;
+
+        //try a different date
+        const retryPicker = document.getElementById('showtime-date-retry');
+        if (retryPicker) retryPicker.value = selectedDate;
+        document.querySelector('.btn-showtimes-retry').addEventListener('click', () => {
+            if (retryPicker && datePicker) datePicker.value = retryPicker.value;
+            refreshBtn.click();
+        });
     }
 
 })();

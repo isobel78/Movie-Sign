@@ -16,11 +16,30 @@ declare(strict_types=1);
 
 session_start();
 
+//check if user is logged in
 if (empty($_SESSION['user_id'])) {
     http_response_code(401);
     header('Content-Type: application/json');
     echo json_encode(['error' => 'Not authenticated']);
     exit;
+}
+
+//resolve requested showtime date
+//defaults to today in UTC if missing or invalid
+$rawDate = trim($_GET['date'] ?? '');
+if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $rawDate)) {
+    $showtimeDate = $rawDate;
+} else {
+    $showtimeDate = gmdate('Y-m-d');
+}
+
+//resolve user's local timezone (sent from the browser via Intl.DateTimeFormat)
+//defaults to UTC if missing or invalid.
+$requestedTz = trim($_GET['tz'] ?? 'UTC');
+try {
+    $userTz = new DateTimeZone($requestedTz);
+} catch (Exception $e) {
+    $userTz = new DateTimeZone('UTC');
 }
 
 //MovieGlu credentials
@@ -202,7 +221,7 @@ foreach ($matchedFilms as $film) {
         'filmShowTimes/',
         [
             'film_id' => $filmId,
-            'date' => gmdate('Y-m-d'),
+            'date' => $showtimeDate,
             'n' => 5,
         ],
         $creds,
@@ -221,9 +240,35 @@ foreach ($matchedFilms as $film) {
     foreach ($cinemas as $cinema) {
         $cinemaName = $cinema['cinema_name'] ?? 'Unknown Cinema';
         foreach ($cinema['showings']['Standard']['times'] ?? [] as $t) {
+            $rawTime = $t['start_time'] ?? '';
+
+            //MovieGlu returns times as "HH:MM" local theater time (no timezone info)
+            // treat them as already being in the user's local timezone, so we just
+            // format them nicely (12-hour with AM/PM) rather than doing a UTC conversion.
+            // If MovieGlu ever returns ISO 8601 timestamps, swap in the conversion below.
+            $displayTime = $rawTime;
+            if (preg_match('/^\d{2}:\d{2}$/', $rawTime)) {
+                // Parse and reformat as h:mm AM/PM in the user's timezone
+                try {
+                    $dt = new DateTime('today ' . $rawTime, $userTz);
+                    $displayTime = $dt->format('g:i A');
+                } catch (Exception $e) {
+                    $displayTime = $rawTime; // fallback: show raw
+                }
+            } elseif (preg_match('/^\d{4}-\d{2}-\d{2}T/', $rawTime)) {
+                // Full ISO 8601 — convert from UTC to local timezone
+                try {
+                    $dt = new DateTime($rawTime, new DateTimeZone('UTC'));
+                    $dt->setTimezone($userTz);
+                    $displayTime = $dt->format('g:i A');
+                } catch (Exception $e) {
+                    $displayTime = $rawTime;
+                }
+            }
+
             $times[] = [
                 'cinema' => $cinemaName,
-                'showtime' => $t['start_time'] ?? '',
+                'showtime' => $displayTime,
             ];
         }
     }

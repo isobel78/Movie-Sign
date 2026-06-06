@@ -19,7 +19,7 @@ if (empty($_SESSION['user_id'])) {
 require_once(__DIR__ . '/../app/Model/db_watchlist.php');
 
 // MovieGlu environment switch 
-// 'sandbox' uses free test data and shows "Testing" in the location display
+// 'sandbox' uses free test data and shows "Sandbox" in the location display
 // 'sandbox' allows for 10,000 req/month, fake data at lat -22.0 lng 14.0
 // Change to 'us' when deploying with live US showtime data
 // 'us' is limited to 75 eval requests
@@ -29,7 +29,7 @@ define('MOVIEGLU_ENV', 'us');  //change to 'us' when ready for live data
 $userID = (int) $_SESSION['user_id'];
 $user_email = htmlspecialchars($_SESSION['user_email'] ?? '');
 $user_zip = htmlspecialchars($_SESSION['user_zip'] ?? '');
-$zip_display = (MOVIEGLU_ENV === 'sandbox') ? 'Testing' : $user_zip;
+$zip_display = (MOVIEGLU_ENV === 'sandbox') ? 'Sandbox' : $user_zip;
 
 //load user's watchlist from DB
 $watchlist = WatchlistDB::getWatchlist($userID);

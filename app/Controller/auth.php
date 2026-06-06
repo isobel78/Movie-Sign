@@ -43,7 +43,7 @@ if ($action === 'register') {
         $errors[] = "Passwords do not match.";
     }
 
-    //zip code is now optional if users chooses geolocation
+    //zip code optional if users chooses geolocation
     if ($zip !== '' && !preg_match('/^\d{5}(-\d{4})?$/', $zip)) {
         $errors[] = "Please enter a valid US zip code (e.g., 23510).";
     }
@@ -244,6 +244,132 @@ elseif ($action === 'update_zip') {
         echo json_encode(['success' => false, 'message' => 'Database update failed.']);
     }
     exit;
+}
+
+//forgot password
+//send a reset link
+elseif ($action === 'forgot_password') {
+
+    $email = trim($_POST['email'] ?? '');
+
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        redirect_with_msg('../../public/forgot_password.php', 'error', 'Please enter a valid email address.');
+    }
+
+    // Generate a secure token (hex, 64 chars)
+    $token = bin2hex(random_bytes(32));
+    $expires = date('Y-m-d H:i:s', time() + 3600); 
+
+    //show a success message to avoid leaking whether an email is registered
+    $genericMsg = 'If that email is on file, a reset link has been sent. Check your inbox (and spam folder).';
+
+    if (UserDB::setResetToken($email, $token, $expires)) {
+        //build the reset URL
+        $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+        $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+        $resetUrl = $scheme . '://' . $host . '/public/reset_password.php?token=' . urlencode($token);
+
+        /* PHP's built-in mail() for testing purposes.
+        $subject = '🚨 MovieSign! — Password Reset';
+        $body = "Hiya, Kid!"
+                 . " "
+                 . "Someone (hopefully you) requested a password reset for your MovieSign! account."
+                 . "Click the link below to choose a new password. It expires in 1 hour."
+                 . $resetUrl 
+                 . " "
+                 . "If you didn't request this, just ignore this email — your password won't change."
+                 . " "
+                 . "— The MovieSign! Bot 🤖";
+
+        $headers = "From: noreply@" . ($_SERVER['HTTP_HOST'] ?? 'moviesign.local') . "\r\n"
+                 . "Content-Type: text/plain; charset=UTF-8\r\n";
+
+        mail($email, $subject, $body, $headers);
+        */
+
+        // PHPMailer via GoDaddy's internal localhost relay (no auth required)
+        require_once(__DIR__ . '/../../vendor/phpmailer/src/Exception.php');
+        require_once(__DIR__ . '/../../vendor/phpmailer/src/PHPMailer.php');
+        require_once(__DIR__ . '/../../vendor/phpmailer/src/SMTP.php');
+
+        $mail = new PHPMailer\PHPMailer\PHPMailer(true);
+        try {
+            $mail->isSMTP();
+            $mail->Host = 'localhost';
+            $mail->Port = 25;
+            $mail->SMTPAuth = false;
+            $mail->SMTPSecure = false;
+
+            $mail->setFrom('noreply@' . $host, 'MovieSign!');
+            $mail->addAddress($email);
+
+            $mail->Subject = '🚨 MovieSign! — Password Reset';
+            $mail->Body    = "Hiya, Kid!\n\n"
+                           . "Someone (hopefully you) requested a password reset for your MovieSign! account.\n\n"
+                           . "Click the link below to choose a new password. It expires in 1 hour.\n\n"
+                           . $resetUrl . "\n\n"
+                           . "If you didn't request this, just ignore this email — your password won't change.\n\n"
+                           . "— The MovieSign! Bot 🤖";
+
+            $mail->send();
+
+        } catch (Exception $e) {
+            error_log('MovieSign password reset mailer error: ' . $mail->ErrorInfo);
+        }
+    }
+
+    redirect_with_msg('../../public/forgot_password.php', 'success', $genericMsg);
+}
+
+//reset password
+//process the token and set a new password
+elseif ($action === 'reset_password') {
+
+    $token = trim($_POST['token'] ?? '');
+    $password = trim($_POST['password'] ?? '');
+    $confirm = trim($_POST['confirm']  ?? '');
+
+    if (!$token) {
+        redirect_with_msg('../../public/login.php', 'error', 'Invalid or missing reset token.');
+    }
+
+    $user = UserDB::getUserByResetToken($token);
+
+    if (!$user) {
+        // Token expired or doesn't exist
+        redirect_with_msg('../../public/forgot_password.php', 'error',
+            'That reset link has expired or already been used. Request a new one.');
+    }
+
+    if (strlen($password) < 8) {
+        redirect_with_msg(
+            '../../public/reset_password.php?token=' . urlencode($token),
+            'error', 'Password must be at least 8 characters.'
+        );
+    }
+
+    if ($password !== $confirm) {
+        redirect_with_msg(
+            '../../public/reset_password.php?token=' . urlencode($token),
+            'error', 'Passwords do not match.'
+        );
+    }
+
+    $newHash = password_hash($password, PASSWORD_BCRYPT);
+    $userID  = (int) $user['user_ID'];
+
+    if (UserDB::updateUser($userID, $user['email'], $newHash, $user['zip_code'])) {
+        // Invalidate token and all existing sessions
+        UserDB::clearResetToken($userID);
+        SessionDB::deleteAllForUser($userID);
+        redirect_with_msg('../../public/login.php', 'success',
+            'Password updated! Sign in with your new password.');
+    } else {
+        redirect_with_msg(
+            '../../public/reset_password.php?token=' . urlencode($token),
+            'error', 'Something went wrong. Please try again.'
+        );
+    }
 }
 
 else {
