@@ -6,6 +6,9 @@ app/Model/db_config.php
 app/Model/movieglu_config.php
 app/Model/TMDB_config.php
 
+# PHPMailer files
+vendor/*
+
 # Logs
 logs
 *.log
