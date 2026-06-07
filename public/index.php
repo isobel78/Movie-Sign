@@ -121,7 +121,7 @@ if (!empty($_SESSION['flash_message'])) {
             <br />
             <div class="showtime-date-row">
                 <label for="showtime-date" class="showtime-date-label">Date</label>
-                <input type="date" id="showtime-date" class="showtime-date-input">
+                <input type="date" id="showtime-date" class="showtime-date-input" autocomplete="off">
             </div>
             <div class="showtime-radius-row" id="radius-row-idle">
             </div>
@@ -548,7 +548,7 @@ function escHtml(str) {
             ${radiusHTML()}
             <div class="showtime-date-row showtime-date-retry">
                 <label for="showtime-date-error" class="showtime-date-label">📅 Try a different date</label>
-                <input type="date" id="showtime-date-error" class="showtime-date-input" value="${escHtml(selectedDate)}">
+                <input type="date" id="showtime-date-error" class="showtime-date-input" value="${escHtml(selectedDate)}"  autocomplete="off">
                 <button type="button" class="btn-showtimes-refresh btn-showtimes-retry" id="error-retry-btn">Check Showtimes</button>
             </div>
         </div>`;
@@ -575,7 +575,7 @@ function escHtml(str) {
         msg += `${radiusHTML()}
         <div class="showtime-date-row showtime-date-retry">
             <label for="showtime-date-empty" class="showtime-date-label">📅 Try a different date</label>
-            <input type="date" id="showtime-date-empty" class="showtime-date-input" value="${escHtml(selectedDate)}">
+            <input type="date" id="showtime-date-empty" class="showtime-date-input" value="${escHtml(selectedDate)}" autocomplete="off">
             <button type="button" class="btn-showtimes-refresh btn-showtimes-retry" id="empty-retry-btn">Check Showtimes</button>
         </div>
         </div>`;
@@ -641,7 +641,7 @@ function escHtml(str) {
         ${radiusHTML()}
         <div class="showtime-date-row showtime-date-retry">
             <label for="showtime-date-retry" class="showtime-date-label">📅 Try a different date</label>
-            <input type="date" id="showtime-date-retry" class="showtime-date-input">
+            <input type="date" id="showtime-date-retry" class="showtime-date-input" autocomplete="off">
             <button type="button" class="btn-showtimes-refresh btn-showtimes-retry">Check Showtimes</button>
         </div>`;
         panel.innerHTML = html;
