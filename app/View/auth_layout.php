@@ -19,7 +19,7 @@ function render_auth_page($title, $content_html) {
 
     <link rel="icon" type="image/x-icon" href="../public/favicon.ico">
     <link rel="icon" type="image/png" sizes="32x32" href="../public/favicon-32.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="../public/favicon-32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="../public/favicon-180.png">
     
     <link rel="stylesheet" href="../public/styles/auth.css?v=<?= filemtime(__DIR__ . '/../../public/styles/auth.css') ?>"> <!-- added the 'filemtime' section to force the browser to load the latest CSS changes -->
 </head>
