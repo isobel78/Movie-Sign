@@ -59,7 +59,7 @@ if (!empty($_SESSION['flash_message'])) {
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" href="./styles/main.css">
+    <link rel="stylesheet" href="./styles/main.css?v=<?= filemtime(__DIR__ . '/styles/main.css') ?>">
     
 </head>
 

@@ -21,7 +21,7 @@ function render_auth_page($title, $content_html) {
     <link rel="icon" type="image/png" sizes="32x32" href="../public/favicon-32.png">
     <link rel="apple-touch-icon" sizes="180x180" href="../public/favicon-32.png">
     
-    <link rel="stylesheet" href="../public/styles/auth.css">
+    <link rel="stylesheet" href="../public/styles/auth.css?v=<?= filemtime(__DIR__ . '/../../public/styles/auth.css') ?>">
 </head>
 
 <body>
