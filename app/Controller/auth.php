@@ -315,34 +315,38 @@ elseif ($action === 'forgot_password') {
         require_once(__DIR__ . '/../../vendor/phpmailer/src/PHPMailer.php');
         require_once(__DIR__ . '/../../vendor/phpmailer/src/SMTP.php');
 
+        // local deployment
+        // $mailConfig = require __DIR__ . '/../Model/mail_config_local.php';
+
+        // live deployment
+        $mailConfig = require __DIR__ . '/../Model/mail_config.php';
+
         $mail = new PHPMailer\PHPMailer\PHPMailer(true);
         try {
             $mail->isSMTP();
-            $mail->Host = 'smtpout.secureserver.net';
-            $mail->SMTPAuth = true;
-            $mail->Username = 'moviesign@atlantadaniel.com';
-            $mail->Password = 'D?;a!SZWi$sGb-6e';
+            $mail->Host = $mailConfig['host'];
+            $mail->Port = $mailConfig['port'];
+            $mail->SMTPAuth = !empty($mailConfig['username']);
+            $mail->Username = $mailConfig['username'];
+            $mail->Password = $mailConfig['password'];
             $mail->SMTPSecure = PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
-            $mail->Port = 587;
 
-            $mail->setFrom('noreply@moviesign.atlantadaniel.com', 'MovieSign!');
-
+            $mail->setFrom($mailConfig['from'], $mailConfig['from_name']);
             $mail->addAddress($email);
 
             $mail->Subject = '🚨 MovieSign! — Password Reset';
             $mail->Body    = "Hiya, Kid!\n\n"
-                           . "Someone (hopefully you) requested a password reset for your MovieSign! account.\n\n"
-                           . "Click the link below to choose a new password. It expires in 1 hour.\n\n"
-                           . $resetUrl . "\n\n"
-                           . "If you didn't request this, just ignore this email — your password won't change.\n\n"
-                           . "— The MovieSign! Bot 🤖";
+                        . "Someone (hopefully you) requested a password reset for your MovieSign! account.\n\n"
+                        . "Click the link below to choose a new password. It expires in 1 hour.\n\n"
+                        . $resetUrl . "\n\n"
+                        . "If you didn't request this, just ignore this email — your password won't change.\n\n"
+                        . "— The MovieSign! Bot 🤖";
 
             $mail->send();
 
-        //} catch (Exception $e) {
-        //    error_log('MovieSign password reset mailer error: ' . $mail->ErrorInfo);
         } catch (Exception $e) {
             error_log('MovieSign password reset mailer error: ' . $mail->ErrorInfo);
+            // Remove this redirect once confirmed working — it exposes internal errors:
             redirect_with_msg('../../public/forgot_password.php', 'error',
                 'Mailer failed: ' . $mail->ErrorInfo);
         }
