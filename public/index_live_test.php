@@ -54,7 +54,7 @@ if (!empty($_SESSION['flash_message'])) {
 
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="favicon-32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="favicon-180.png">
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
@@ -67,22 +67,45 @@ if (!empty($_SESSION['flash_message'])) {
 
 <header>
     <a href="index.php" class="wordmark" title="home">🚨Movie<span>Sign</span>!</a>
-    <div class="user-bar">
+
+    <!-- Desktop user-bar (hidden on mobile) -->
+    <div class="user-bar user-bar-desktop">
         <span class="user-email"><?= $user_email ?></span>
         <span class="zip-display<?= (MOVIEGLU_ENV === 'sandbox') ? ' zip-testing' : '' ?>" id="zip-display" title="<?= (MOVIEGLU_ENV === 'sandbox') ? 'Sandbox mode active' : 'Your theater search location' ?>">
             📍 <span id="zip-value"><?= $zip_display ?></span>
         </span>
-
         <button type="button" id="geo-btn-header" class="btn-geo-sm" title="Update location from GPS">⊙</button>
-
         <a href="account.php" class="btn-account">⚙ Account</a>
-
         <form method="POST" action="../app/Controller/auth.php" style="margin:0;">
             <input type="hidden" name="action" value="logout">
             <button type="submit" class="btn-logout">Sign out</button>
         </form>
     </div>
+
+    <!-- Hamburger button (mobile only) -->
+    <button class="hamburger" id="hamburger-btn" aria-label="Open menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+    </button>
 </header>
+
+<!-- Mobile nav drawer -->
+<nav class="mobile-nav" id="mobile-nav" aria-hidden="true">
+    <div class="mobile-nav-inner">
+        <div class="mobile-nav-user">
+            <span class="user-email"><?= $user_email ?></span>
+            <span class="zip-display<?= (MOVIEGLU_ENV === 'sandbox') ? ' zip-testing' : '' ?>" id="zip-display-mobile" title="<?= (MOVIEGLU_ENV === 'sandbox') ? 'Sandbox mode active' : 'Your theater search location' ?>">
+                📍 <span id="zip-value-mobile"><?= $zip_display ?></span>
+            </span>
+            <button type="button" id="geo-btn-mobile" class="btn-geo-sm" title="Update location from GPS">⊙</button>
+        </div>
+        <a href="account.php" class="mobile-nav-link">⚙ Account</a>
+        <form method="POST" action="../app/Controller/auth.php" style="margin:0;">
+            <input type="hidden" name="action" value="logout">
+            <button type="submit" class="mobile-nav-link mobile-nav-signout">Sign out</button>
+        </form>
+    </div>
+</nav>
+<div class="mobile-nav-overlay" id="mobile-nav-overlay"></div>
 
 <main>
 
@@ -94,11 +117,11 @@ if (!empty($_SESSION['flash_message'])) {
     <div id="showtimes-panel">
         <div class="showtimes-idle">
             <p>Hit <strong>Check Showtimes</strong> to see which of your watchlist films are playing near you today.</p>
-            <p class="showtimes-note">📍 Uses your saved zip code location.</p>
+            <!-- <p class="showtimes-note">📍 Uses your saved zip code location.</p> -->
             <br />
             <div class="showtime-date-row">
-                <label for="showtime-date" class="showtime-date-label">📅 Date</label>
-                <input type="date" id="showtime-date" class="showtime-date-input">
+                <label for="showtime-date" class="showtime-date-label">Date</label>
+                <input type="date" id="showtime-date" class="showtime-date-input" autocomplete="off">
             </div>
             <div class="showtime-radius-row" id="radius-row-idle">
             </div>
@@ -346,12 +369,17 @@ function escHtml(str) {
                         const result = await save.json();
 
                         if (result.success) {
-                            //in live mode, update the visible zip label
-                            if (!isSandbox) zipValue.textContent = zip;
-                            
-                            //turn button green to show GPS is active
+                            //in live mode, update the visible zip label (desktop + mobile)
+                            if (!isSandbox) {
+                                zipValue.textContent = zip;
+                                const mobileZip = document.getElementById('zip-value-mobile');
+                                if (mobileZip) mobileZip.textContent = zip;
+                            }
+                            //turn both geo buttons green to show GPS is active
                             geoBtn.classList.add('geo-active');
                             geoBtn.textContent = '⊙';
+                            const mobileGeo = document.getElementById('geo-btn-mobile');
+                            if (mobileGeo) mobileGeo.classList.add('geo-active');
                         } else {
                             geoBtn.textContent = '⚠️';
                             setTimeout(() => { geoBtn.textContent = '⊙'; }, 2000);
@@ -520,7 +548,7 @@ function escHtml(str) {
             ${radiusHTML()}
             <div class="showtime-date-row showtime-date-retry">
                 <label for="showtime-date-error" class="showtime-date-label">📅 Try a different date</label>
-                <input type="date" id="showtime-date-error" class="showtime-date-input" value="${escHtml(selectedDate)}">
+                <input type="date" id="showtime-date-error" class="showtime-date-input" value="${escHtml(selectedDate)}"  autocomplete="off">
                 <button type="button" class="btn-showtimes-refresh btn-showtimes-retry" id="error-retry-btn">Check Showtimes</button>
             </div>
         </div>`;
@@ -547,7 +575,7 @@ function escHtml(str) {
         msg += `${radiusHTML()}
         <div class="showtime-date-row showtime-date-retry">
             <label for="showtime-date-empty" class="showtime-date-label">📅 Try a different date</label>
-            <input type="date" id="showtime-date-empty" class="showtime-date-input" value="${escHtml(selectedDate)}">
+            <input type="date" id="showtime-date-empty" class="showtime-date-input" value="${escHtml(selectedDate)}" autocomplete="off">
             <button type="button" class="btn-showtimes-refresh btn-showtimes-retry" id="empty-retry-btn">Check Showtimes</button>
         </div>
         </div>`;
@@ -613,7 +641,7 @@ function escHtml(str) {
         ${radiusHTML()}
         <div class="showtime-date-row showtime-date-retry">
             <label for="showtime-date-retry" class="showtime-date-label">📅 Try a different date</label>
-            <input type="date" id="showtime-date-retry" class="showtime-date-input">
+            <input type="date" id="showtime-date-retry" class="showtime-date-input" autocomplete="off">
             <button type="button" class="btn-showtimes-refresh btn-showtimes-retry">Check Showtimes</button>
         </div>`;
         panel.innerHTML = html;
@@ -631,5 +659,43 @@ function escHtml(str) {
 })();
 </script>
 
+<script>
+// Hamburger menu
+(function () {
+    const btn = document.getElementById('hamburger-btn');
+    const nav = document.getElementById('mobile-nav');
+    const overlay = document.getElementById('mobile-nav-overlay');
+
+    function openMenu() {
+        nav.classList.add('open');
+        overlay.classList.add('open');
+        btn.classList.add('open');
+        btn.setAttribute('aria-expanded', 'true');
+        nav.setAttribute('aria-hidden', 'false');
+    }
+    function closeMenu() {
+        nav.classList.remove('open');
+        overlay.classList.remove('open');
+        btn.classList.remove('open');
+        btn.setAttribute('aria-expanded', 'false');
+        nav.setAttribute('aria-hidden', 'true');
+    }
+
+    btn.addEventListener('click', () => {
+        btn.classList.contains('open') ? closeMenu() : openMenu();
+    });
+    overlay.addEventListener('click', closeMenu);
+
+    // Mobile geo button mirrors the desktop geo button click
+    const mobileGeoBtn = document.getElementById('geo-btn-mobile');
+    const desktopGeoBtn = document.getElementById('geo-btn-header');
+    if (mobileGeoBtn && desktopGeoBtn) {
+        mobileGeoBtn.addEventListener('click', () => {
+            closeMenu();
+            desktopGeoBtn.click();
+        });
+    }
+})();
+</script>
 </body>
 </html>

@@ -117,7 +117,7 @@ if (!empty($_SESSION['flash_message'])) {
     <div id="showtimes-panel">
         <div class="showtimes-idle">
             <p>Hit <strong>Check Showtimes</strong> to see which of your watchlist films are playing near you today.</p>
-            <p class="showtimes-note">📍 Uses your saved zip code location.</p>
+            <!-- <p class="showtimes-note">📍 Uses your saved zip code location.</p> -->
             <br />
             <div class="showtime-date-row">
                 <label for="showtime-date" class="showtime-date-label">Date</label>
