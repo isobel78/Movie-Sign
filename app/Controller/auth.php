@@ -292,61 +292,31 @@ elseif ($action === 'forgot_password') {
         $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
         $resetUrl = $scheme . '://' . $host . '/public/reset_password.php?token=' . urlencode($token);
 
-        /* PHP's built-in mail() for testing purposes.
-        $subject = '🚨 MovieSign! — Password Reset';
-        $body = "Hiya, Kid!"
-                 . " "
-                 . "Someone (hopefully you) requested a password reset for your MovieSign! account."
-                 . "Click the link below to choose a new password. It expires in 1 hour."
-                 . $resetUrl 
-                 . " "
-                 . "If you didn't request this, just ignore this email — your password won't change."
-                 . " "
-                 . "— The MovieSign! Bot 🤖";
-
-        $headers = "From: noreply@" . ($_SERVER['HTTP_HOST'] ?? 'moviesign.local') . "\r\n"
-                 . "Content-Type: text/plain; charset=UTF-8\r\n";
-
-        mail($email, $subject, $body, $headers);
-        */
-
         // PHPMailer via GoDaddy's internal localhost relay (no auth required)
         require_once(__DIR__ . '/../../vendor/phpmailer/src/Exception.php');
         require_once(__DIR__ . '/../../vendor/phpmailer/src/PHPMailer.php');
         require_once(__DIR__ . '/../../vendor/phpmailer/src/SMTP.php');
 
-        // local deployment
-        // $mailConfig = require __DIR__ . '/../Model/mail_config_local.php';
-
-        // live deployment
         $mailConfig = require __DIR__ . '/../Model/mail_config.php';
-
         $mail = new PHPMailer\PHPMailer\PHPMailer(true);
         try {
             $mail->isSMTP();
             $mail->Host = $mailConfig['host'];
             $mail->Port = $mailConfig['port'];
-            $mail->SMTPAuth = !empty($mailConfig['username']);
-            $mail->Username = $mailConfig['username'];
-            $mail->Password = $mailConfig['password'];
-            $mail->SMTPSecure = PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
-
+            $mail->SMTPAuth = false;
+            $mail->SMTPSecure = ''; // no encryption on GoDaddy localhost relay
             $mail->setFrom($mailConfig['from'], $mailConfig['from_name']);
             $mail->addAddress($email);
-
-            $mail->Subject = '🚨 MovieSign! — Password Reset';
-            $mail->Body    = "Hiya, Kid!\n\n"
+            $mail->Subject = 'MovieSign! Password Reset';
+            $mail->Body    = "Hiya, Kids!\n\n"
                         . "Someone (hopefully you) requested a password reset for your MovieSign! account.\n\n"
                         . "Click the link below to choose a new password. It expires in 1 hour.\n\n"
                         . $resetUrl . "\n\n"
                         . "If you didn't request this, just ignore this email — your password won't change.\n\n"
-                        . "— The MovieSign! Bot 🤖";
-
+                        . "- The MovieSign! Bot";
             $mail->send();
-
         } catch (Exception $e) {
             error_log('MovieSign password reset mailer error: ' . $mail->ErrorInfo);
-            // Remove this redirect once confirmed working — it exposes internal errors:
             redirect_with_msg('../../public/forgot_password.php', 'error',
                 'Mailer failed: ' . $mail->ErrorInfo);
         }
