@@ -208,6 +208,11 @@ if (empty($matchedFilms)) {
     exit;
 }
 
+//radius filter - accepted values: 25, 50, 100. Default: 25.
+$rawRadius = (int) ($_GET['radius'] ?? 25);
+$radiusMiles = in_array($rawRadius, [25, 50, 100], true) ? $rawRadius : 25;
+
+
 //Step 3
 //for each matched film, fetch cinemas + showtimes
 $showtimes = [];
@@ -222,7 +227,7 @@ foreach ($matchedFilms as $film) {
         [
             'film_id' => $filmId,
             'date' => $showtimeDate,
-            'n' => 5,
+            'n' => 25,
         ],
         $creds,
         $geoHeader,
@@ -238,13 +243,18 @@ foreach ($matchedFilms as $film) {
     $times = [];
 
     foreach ($cinemas as $cinema) {
+        //filter by radius
+        //probably won't work in sandbox mode — skip the filter in that case
+        $distance = isset($cinema['distance']) ? (float) $cinema['distance'] : null;
+        if ($distance !== null && $distance > $radiusMiles) {
+            continue;
+        }
+
         $cinemaName = $cinema['cinema_name'] ?? 'Unknown Cinema';
         foreach ($cinema['showings']['Standard']['times'] ?? [] as $t) {
             $rawTime = $t['start_time'] ?? '';
 
             //MovieGlu returns times as "HH:MM" local theater time (no timezone info)
-            // treat them as already being in the user's local timezone, so we just
-            // format them nicely (12-hour with AM/PM) rather than doing a UTC conversion.
             // If MovieGlu ever returns ISO 8601 timestamps, swap in the conversion below.
             $displayTime = $rawTime;
             if (preg_match('/^\d{2}:\d{2}$/', $rawTime)) {
@@ -269,6 +279,7 @@ foreach ($matchedFilms as $film) {
             $times[] = [
                 'cinema' => $cinemaName,
                 'showtime' => $displayTime,
+                'distance' => $distance,
             ];
         }
     }

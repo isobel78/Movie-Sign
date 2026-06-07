@@ -246,7 +246,7 @@ elseif ($action === 'update_zip') {
     exit;
 }
 
-//forgot password
+// FORGOT PASSWORD
 //send a reset link
 elseif ($action === 'forgot_password') {
 
@@ -321,7 +321,7 @@ elseif ($action === 'forgot_password') {
     redirect_with_msg('../../public/forgot_password.php', 'success', $genericMsg);
 }
 
-//reset password
+// RESET PASSWORD
 //process the token and set a new password
 elseif ($action === 'reset_password') {
 

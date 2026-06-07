@@ -601,3 +601,73 @@ a.wordmark:hover {
 .btn-link:hover {
     color: #ff5252;
 }
+
+/* Radius filter */
+.showtime-radius-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+    flex-wrap: wrap;
+}
+.showtime-radius-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: rgba(255,255,255,0.55);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+.radius-btn-group {
+    display: flex;
+    gap: 0.35rem;
+}
+.radius-btn {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: rgba(255,255,255,0.55);
+    border-radius: 6px;
+    padding: 0.3rem 0.75rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.radius-btn:hover {
+    background: rgba(229,57,53,0.12);
+    border-color: rgba(229,57,53,0.4);
+    color: #fff;
+}
+.radius-btn.radius-btn-active {
+    background: rgba(229,57,53,0.2);
+    border-color: var(--red, #e53935);
+    color: #fff;
+}
+
+/* Distance badge next to cinema name */
+.st-distance {
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: rgba(255,255,255,0.35);
+    margin-left: 0.4rem;
+}
+
+/* Mode toggle row (sandbox / live) */
+.showtime-mode-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+    flex-wrap: wrap;
+}
+
+/* Radius pills inside retry panels */
+.showtime-radius-retry {
+    margin-top: 1.25rem;
+    margin-bottom: 0;
+    padding-top: 1.25rem;
+    border-top: 1px solid rgba(255,255,255,0.1);
+}
