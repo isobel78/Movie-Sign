@@ -318,12 +318,15 @@ elseif ($action === 'forgot_password') {
         $mail = new PHPMailer\PHPMailer\PHPMailer(true);
         try {
             $mail->isSMTP();
-            $mail->Host = 'localhost';
-            $mail->Port = 25;
-            $mail->SMTPAuth = false;
-            $mail->SMTPSecure = false;
+            $mail->Host = 'smtpout.secureserver.net';
+            $mail->SMTPAuth = true;
+            $mail->Username = 'moviesign@atlantadaniel.com';
+            $mail->Password = 'D?;a!SZWi$sGb-6e';
+            $mail->SMTPSecure = PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
+            $mail->Port = 587;
 
-            $mail->setFrom('noreply@' . $host, 'MovieSign!');
+            $mail->setFrom('noreply@moviesign.atlantadaniel.com', 'MovieSign!');
+
             $mail->addAddress($email);
 
             $mail->Subject = '🚨 MovieSign! — Password Reset';
@@ -336,8 +339,12 @@ elseif ($action === 'forgot_password') {
 
             $mail->send();
 
+        //} catch (Exception $e) {
+        //    error_log('MovieSign password reset mailer error: ' . $mail->ErrorInfo);
         } catch (Exception $e) {
             error_log('MovieSign password reset mailer error: ' . $mail->ErrorInfo);
+            redirect_with_msg('../../public/forgot_password.php', 'error',
+                'Mailer failed: ' . $mail->ErrorInfo);
         }
     }
 
