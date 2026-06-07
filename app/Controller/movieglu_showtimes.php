@@ -152,10 +152,10 @@ function movieglu_get(string $endpoint, array $params, array $creds, string $geo
 
 
 //Step 1
-//Fetch films showing near the user today
+//Fetch films showing near the user on the requested date
 $filmsResult = movieglu_get(
     'filmsNowShowing/',
-    ['n' => 10],
+    ['n' => 10, 'date' => $showtimeDate],
     $creds,
     $geoHeader,
     $deviceDatetime
@@ -169,6 +169,7 @@ if (!$filmsResult['ok']) {
 }
 
 $nowShowingFilms = $filmsResult['data']['films'] ?? [];
+
 
 if (empty($nowShowingFilms)) {
     header('Content-Type: application/json');
@@ -246,11 +247,12 @@ foreach ($matchedFilms as $film) {
         //filter by radius
         //probably won't work in sandbox mode — skip the filter in that case
         $distance = isset($cinema['distance']) ? (float) $cinema['distance'] : null;
-        if ($distance !== null && $distance > $radiusMiles) {
+        if ($env !== 'sandbox' && $distance !== null && $distance > $radiusMiles) {
             continue;
         }
 
         $cinemaName = $cinema['cinema_name'] ?? 'Unknown Cinema';
+
         foreach ($cinema['showings']['Standard']['times'] ?? [] as $t) {
             $rawTime = $t['start_time'] ?? '';
 

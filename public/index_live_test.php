@@ -59,7 +59,7 @@ if (!empty($_SESSION['flash_message'])) {
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" href="./styles/main.css?v=<?= filemtime(__DIR__ . '/styles/main.css') ?>">
+    <link rel="stylesheet" href="./styles/main.css?v=<?= filemtime(__DIR__ . '/styles/main.css') ?>"> <!-- added the 'filemtime' section to force the browser to load the latest CSS changes -->
     
 </head>
 
@@ -100,14 +100,7 @@ if (!empty($_SESSION['flash_message'])) {
                 <label for="showtime-date" class="showtime-date-label">📅 Date</label>
                 <input type="date" id="showtime-date" class="showtime-date-input">
             </div>
-            <br />
-            <div class="showtime-radius-row" id="radius-row">
-                <label class="showtime-radius-label">📍 Distance</label>
-                <div class="radius-btn-group">
-                    <button type="button" class="radius-btn radius-btn-active" data-miles="25">25 mi</button>
-                    <button type="button" class="radius-btn" data-miles="50">50 mi</button>
-                    <button type="button" class="radius-btn" data-miles="100">100 mi</button>
-                </div>
+            <div class="showtime-radius-row" id="radius-row-idle">
             </div>
             <br />
             <button type="button" id="showtimes-refresh-btn" class="btn-showtimes-refresh" title="Check showtimes near you">
@@ -397,32 +390,47 @@ function escHtml(str) {
     const refreshBtn = document.getElementById('showtimes-refresh-btn');
     const panel = document.getElementById('showtimes-panel');
     const datePicker = document.getElementById('showtime-date');
-    const radiusRow = document.getElementById('radius-row');
-
-    //mode toggle (sandbox vs live)
-    //only present when PHP MOVIEGLU_ENV === 'sandbox'
-    let selectedEnv = <?= json_encode(MOVIEGLU_ENV) ?>;
-    document.querySelectorAll('[data-mode]').forEach(btn => {
-        btn.addEventListener('click', () => {
-            document.querySelectorAll('[data-mode]').forEach(b => b.classList.remove('radius-btn-active'));
-            btn.classList.add('radius-btn-active');
-            selectedEnv = btn.dataset.mode;
-            //hide distance filter in sandbox
-            if (radiusRow) radiusRow.style.display = selectedEnv === 'sandbox' ? 'none' : '';
-        });
-    });
-    // hide distance row initially if starting in sandbox
-    if (radiusRow && selectedEnv === 'sandbox') radiusRow.style.display = 'none';
 
     //radius filter state — default 25 miles
     let selectedRadius = 25;
-    document.querySelectorAll('.radius-btn[data-miles]').forEach(btn => {
-        btn.addEventListener('click', () => {
-            document.querySelectorAll('.radius-btn[data-miles]').forEach(b => b.classList.remove('radius-btn-active'));
-            btn.classList.add('radius-btn-active');
-            selectedRadius = parseInt(btn.dataset.miles, 10);
+
+    //radius button group
+    function radiusHTML() {
+        const opts = [
+            { miles: 25, label: '25 mi' },
+            { miles: 50, label: '50 mi' },
+            { miles: 100, label: '100 mi' },
+        ];
+        const btns = opts.map(o =>
+            `<button type="button" class="radius-btn${selectedRadius === o.miles ? ' radius-btn-active' : ''}" data-miles="${o.miles}">${o.label}</button>`
+        ).join('');
+        return `<div class="showtime-radius-row">
+            <label class="showtime-radius-label">Distance</label>
+            <div class="radius-btn-group">${btns}</div>
+        </div>`;
+    }
+
+    // Wire up radius buttons inside any container
+    function bindRadiusBtns(container) {
+        container.querySelectorAll('.radius-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                selectedRadius = parseInt(btn.dataset.miles, 10);
+                // Re-highlight across whatever container they live in
+                btn.closest('.radius-btn-group').querySelectorAll('.radius-btn').forEach(b => b.classList.remove('radius-btn-active'));
+                btn.classList.add('radius-btn-active');
+            });
         });
-    });
+    }
+
+    // Wire the initial (idle) radius buttons on page load
+    bindRadiusBtns(panel);
+
+    // Inject radius buttons into the idle state
+    const idleRadiusRow = document.getElementById('radius-row-idle');
+    if (idleRadiusRow) {
+        idleRadiusRow.outerHTML = radiusHTML();
+        bindRadiusBtns(panel);
+    }
 
     //default to today in the user's local timezone (not UTC)
     const todayLocal = new Date();
@@ -464,7 +472,7 @@ function escHtml(str) {
                 radius: selectedRadius,
             });
 
-            const res = await fetch(`../app/Controller/movieglu_showtimes.php?${params}&env=${encodeURIComponent(selectedEnv)}`);
+            const res = await fetch(`../app/Controller/movieglu_showtimes.php?${params}&env=<?= urlencode(MOVIEGLU_ENV) ?>`);
             const data = await res.json();
 
             if (data.error) {
@@ -493,32 +501,6 @@ function escHtml(str) {
     }
 
     // Render helpers
-
-    // Generates the radius pill group HTML reflecting current selection — used in retry panels
-    function radiusPillsHTML() {
-        return `<div class="showtime-radius-row showtime-radius-retry">
-            <label class="showtime-radius-label">📍 Distance</label>
-            <div class="radius-btn-group">
-                ${[25,50,100].map(m =>
-                    `<button type="button" class="radius-btn retry-radius-btn${selectedRadius === m ? ' radius-btn-active' : ''}" data-miles="${m}">${m} mi</button>`
-                ).join('')}
-            </div>
-        </div>`;
-    }
-
-    function wireRetryRadius(container) {
-        container.querySelectorAll('.retry-radius-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                // sync back to main radius state
-                document.querySelectorAll('.radius-btn[data-miles]').forEach(b => b.classList.remove('radius-btn-active'));
-                document.querySelector(`.radius-btn[data-miles="${btn.dataset.miles}"]`)?.classList.add('radius-btn-active');
-                container.querySelectorAll('.retry-radius-btn').forEach(b => b.classList.remove('radius-btn-active'));
-                btn.classList.add('radius-btn-active');
-                selectedRadius = parseInt(btn.dataset.miles, 10);
-            });
-        });
-    }
-
     function setLoading(on) {
         refreshBtn.disabled = on;
         refreshBtn.textContent = on ? '⌛ Checking…' : 'Check Showtimes';
@@ -535,14 +517,14 @@ function escHtml(str) {
             <span class="showtimes-error-icon">⚠️</span>
             <p>${escHtml(msg)}</p>
             <p class="showtimes-note">Check that your location is set and try again.</p>
-            ${selectedEnv !== 'sandbox' ? radiusPillsHTML() : ''}
+            ${radiusHTML()}
             <div class="showtime-date-row showtime-date-retry">
                 <label for="showtime-date-error" class="showtime-date-label">📅 Try a different date</label>
                 <input type="date" id="showtime-date-error" class="showtime-date-input" value="${escHtml(selectedDate)}">
                 <button type="button" class="btn-showtimes-refresh btn-showtimes-retry" id="error-retry-btn">Check Showtimes</button>
             </div>
         </div>`;
-        wireRetryRadius(panel);
+        bindRadiusBtns(panel);
         document.getElementById('error-retry-btn').addEventListener('click', () => {
             const errorPicker = document.getElementById('showtime-date-error');
             if (errorPicker && datePicker) datePicker.value = errorPicker.value;
@@ -562,7 +544,7 @@ function escHtml(str) {
                 <em>${allShowing.map(escHtml).join(', ')}</em></p>`;
         }
 
-        msg += `${selectedEnv !== 'sandbox' ? radiusPillsHTML() : ''}
+        msg += `${radiusHTML()}
         <div class="showtime-date-row showtime-date-retry">
             <label for="showtime-date-empty" class="showtime-date-label">📅 Try a different date</label>
             <input type="date" id="showtime-date-empty" class="showtime-date-input" value="${escHtml(selectedDate)}">
@@ -571,7 +553,7 @@ function escHtml(str) {
         </div>`;
 
         panel.innerHTML = msg;
-        wireRetryRadius(panel);
+        bindRadiusBtns(panel);
 
         document.getElementById('empty-retry-btn').addEventListener('click', () => {
             const emptyPicker = document.getElementById('showtime-date-empty');
@@ -628,14 +610,14 @@ function escHtml(str) {
         }
 
         html += `</div>
-        ${selectedEnv !== 'sandbox' ? radiusPillsHTML() : ''}
+        ${radiusHTML()}
         <div class="showtime-date-row showtime-date-retry">
             <label for="showtime-date-retry" class="showtime-date-label">📅 Try a different date</label>
             <input type="date" id="showtime-date-retry" class="showtime-date-input">
             <button type="button" class="btn-showtimes-refresh btn-showtimes-retry">Check Showtimes</button>
         </div>`;
         panel.innerHTML = html;
-        wireRetryRadius(panel);
+        bindRadiusBtns(panel);
 
         //try a different date
         const retryPicker = document.getElementById('showtime-date-retry');
