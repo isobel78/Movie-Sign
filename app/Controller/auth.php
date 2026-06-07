@@ -17,6 +17,27 @@ function redirect_with_msg($url, $type, $message) {
     exit;
 }
 
+//Helper function:
+//validate password complexity — returns an error string or null on success
+function validate_password($password) {
+    if (strlen($password) < 10) {
+        return "Password must be at least 10 characters.";
+    }
+    if (!preg_match('/[A-Z]/', $password)) {
+        return "Password must contain at least one uppercase letter.";
+    }
+    if (!preg_match('/[a-z]/', $password)) {
+        return "Password must contain at least one lowercase letter.";
+    }
+    if (!preg_match('/[0-9]/', $password)) {
+        return "Password must contain at least one number.";
+    }
+    if (!preg_match('/[^A-Za-z0-9]/', $password)) {
+        return "Password must contain at least one special character (e.g. !@#\$%).";
+    }
+    return null;
+}
+
 //check action query param
 $action = $_POST['action'] ?? '';
 
@@ -35,8 +56,9 @@ if ($action === 'register') {
         $errors[] = "Please enter a valid email address.";
     }
 
-    if (strlen($password) < 8) {
-        $errors[] = "Password must be at least 8 characters.";
+    $pwError = validate_password($password);
+    if ($pwError !== null) {
+        $errors[] = $pwError;
     }
 
     if ($password !== $confirm) {
@@ -175,8 +197,9 @@ elseif ($action === 'update_account') {
         if (!password_verify($currentPw, $current['pw_hash'])) {
             redirect_with_msg('../../public/account.php', 'error', "Current password is incorrect.");
         }
-        if (strlen($newPassword) < 8) {
-            redirect_with_msg('../../public/account.php', 'error', "New password must be at least 8 characters.");
+        $pwError = validate_password($newPassword);
+        if ($pwError !== null) {
+            redirect_with_msg('../../public/account.php', 'error', $pwError);
         }
         if ($newPassword !== $confirmPw) {
             redirect_with_msg('../../public/account.php', 'error', "New passwords do not match.");
@@ -341,10 +364,11 @@ elseif ($action === 'reset_password') {
             'That reset link has expired or already been used. Request a new one.');
     }
 
-    if (strlen($password) < 8) {
+    $pwError = validate_password($password);
+    if ($pwError !== null) {
         redirect_with_msg(
             '../../public/reset_password.php?token=' . urlencode($token),
-            'error', 'Password must be at least 8 characters.'
+            'error', $pwError
         );
     }
 

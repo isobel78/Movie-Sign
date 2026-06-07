@@ -39,7 +39,7 @@ ob_start();
 <?php else: ?>
 
 <p class="section-hint" style="margin-bottom:1.2rem;">
-    Choose a strong password — at least 8 characters.
+    Choose a strong password — at least 10 characters, with uppercase, lowercase, a number, and a symbol.
 </p>
 
 <form method="POST" action="../app/Controller/auth.php" novalidate>

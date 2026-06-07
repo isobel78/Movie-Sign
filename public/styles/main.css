@@ -652,7 +652,7 @@ a.wordmark:hover {
     margin-left: 0.4rem;
 }
 
-/* Hamburger menu (mobile only) */
+/* Hamburger button (mobile only) */
 .hamburger {
     display: none;
     flex-direction: column;
@@ -731,24 +731,26 @@ a.wordmark:hover {
 .mobile-nav-link:hover { color: var(--red); }
 .mobile-nav-signout { color: var(--muted); }
 
-/*  Overlay behind drawer */
+/* Overlay behind drawer */
 .mobile-nav-overlay {
-    display: none;
     position: fixed;
     inset: 0;
     background: rgba(0,0,0,0.55);
     z-index: 299;
     opacity: 0;
+    pointer-events: none;
     transition: opacity 0.28s ease;
 }
-.mobile-nav-overlay.open { opacity: 1; }
+.mobile-nav-overlay.open {
+    opacity: 1;
+    pointer-events: auto;
+}
 
 /* Responsive: show hamburger on narrow screens */
 @media (max-width: 600px) {
     .user-bar-desktop { display: none; }
     .hamburger        { display: flex; }
     .mobile-nav       { display: block; }
-    .mobile-nav-overlay { display: block; }
 }
 
 /* Showtime date row & retry section centering */
@@ -761,10 +763,13 @@ a.wordmark:hover {
     margin-top: 0.75rem;
 }
 .showtime-date-label {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     font-weight: 600;
-    color: rgba(255,255,255,0.65);
+    color: rgba(255,255,255,0.55);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
     white-space: nowrap;
+    flex-shrink: 0;
 }
 .showtime-date-input {
     background: var(--panel2);

@@ -120,7 +120,7 @@ if (!empty($_SESSION['flash_message'])) {
             <p class="showtimes-note">📍 Uses your saved zip code location.</p>
             <br />
             <div class="showtime-date-row">
-                <label for="showtime-date" class="showtime-date-label">📅 Date</label>
+                <label for="showtime-date" class="showtime-date-label">Date</label>
                 <input type="date" id="showtime-date" class="showtime-date-input">
             </div>
             <div class="showtime-radius-row" id="radius-row-idle">

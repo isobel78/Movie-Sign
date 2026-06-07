@@ -63,7 +63,7 @@ ob_start();
 
     <div class="field">
         <label for="new_password">New Password</label>
-        <input type="password" id="new_password" name="new_password" autocomplete="new-password" placeholder="At least 8 characters">
+        <input type="password" id="new_password" name="new_password" autocomplete="new-password" placeholder="At least 10 characters">
         <p class="hint">Changing your password will sign you out on other devices.</p>
     </div>
 

@@ -29,8 +29,8 @@ ob_start();
 
     <div class="field">
         <label for="password">Password</label>
-        <input type="password" id="password" name="password" required autocomplete="new-password" placeholder="At least 8 characters">
-        <p class="hint">Minimum 8 characters</p>
+        <input type="password" id="password" name="password" required autocomplete="new-password" placeholder="At least 10 characters">
+        <p class="hint">Min 10 chars · uppercase · lowercase · number · symbol</p>
     </div>
 
     <div class="field">
