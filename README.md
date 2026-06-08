@@ -42,9 +42,9 @@ Most moviegoers juggle two separate platforms: one to track films they want to s
 moviesign/
 ├── app/                            # Above web root
 │   ├── Controller/
-|   |   ├── auth.php
-|   |   ├── movieglu_showtimes.php  # Server-side MovieGlu proxy
-|   |   ├── tmdb_search.php         # Server-side TMDB proxy
+│   │   ├── auth.php
+│   │   ├── movieglu_showtimes.php  # Server-side MovieGlu proxy
+│   │   ├── tmdb_search.php         # Server-side TMDB proxy
 │   │   └── watchlist.php
 │   ├── Model/
 │   │   ├── db_config.php           # Live DB credentials (not in git)
@@ -57,7 +57,7 @@ moviesign/
 │   │   ├── movieglu_config.php     # MovieGlu API keys (not in git)
 │   │   └── tmdb_config.php         # TMDB API key (not in git)
 │   └── View/
-│   │   ├── auth_layout.php
+│   │   └──  auth_layout.php
 ├── public/                         # Web root
 │   ├── account.php
 │   ├── forgot_password.php
@@ -66,8 +66,8 @@ moviesign/
 │   ├── register.php
 │   ├── reset_password.php 
 │   ├── styles/
-|   |   ├── auth.css
-|   |   ├── main.css
+│   │   ├── auth.css
+│   │   └──  main.css
 └── vendor/
     └── phpmailer/
 ```
@@ -112,14 +112,14 @@ moviesign/
    <?php
    return [
        'sandbox' => [
-            'client'        => 'MOVI_296',
+            'client'        => 'YOUR_MOVIEGLU_CLIENT',
             'x-api-key'     => 'YOUR_MOVIEGLU_KEY',
             'authorization' => 'YOUR_MOVIEGLU_AUTH',
             'territory'     => 'XX',
             'geo'           => '-22.0;14.0',
         ],
         'us' => [
-            'client'        => 'MOVI_296',
+            'client'        => 'YOUR_MOVIEGLU_CLIENT',
             'x-api-key'     => 'YOUR_MOVIEGLU_KEY',
             'authorization' => 'YOUR_MOVIEGLU_AUTH',
             'territory'     => 'US',
@@ -131,7 +131,7 @@ moviesign/
 3. **Import the database schema**
    Open phpMyAdmin, create a database named `moviesign`, then import `create.sql`.
 
-4. **Start XAMPP** and navigate to `http://localhost/Movie-Sign/public/`
+4. **Start XAMPP** and navigate to `https://localhost/Movie-Sign/public/`
 
 ---
 
