@@ -100,11 +100,12 @@ if ($env === 'sandbox') {
         exit;
     }
 
-    $geoHeader = round($lat, 2) . ';' . round($lng, 2);
+    $geoHeader = round($lat, 4) . ';' . round($lng, 4);
 }
 
 // ISO 8601 datetime required by MovieGlu
-$deviceDatetime = gmdate("Y-m-d\TH:i:s.000\Z");
+$nowLocal = new DateTime('now', $userTz);
+$deviceDatetime = $nowLocal->format("Y-m-d\TH:i:s.000\Z");
 
 //Helper cURL request to MovieGlu
 function movieglu_get(string $endpoint, array $params, array $creds, string $geo, string $datetime): array {
