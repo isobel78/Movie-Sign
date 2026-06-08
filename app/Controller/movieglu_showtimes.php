@@ -210,9 +210,9 @@ if (empty($matchedFilms)) {
     exit;
 }
 
-//radius filter - accepted values: 25, 50, 100. Default: 25.
-$rawRadius = (int) ($_GET['radius'] ?? 25);
-$radiusMiles = in_array($rawRadius, [25, 50, 100], true) ? $rawRadius : 25;
+//radius filter - accepted values: 10, 25, 50, 100. Default: 10.
+$rawRadius = (int) ($_GET['radius'] ?? 10);
+$radiusMiles = in_array($rawRadius, [10, 25, 50, 100], true) ? $rawRadius : 10;
 
 
 //Step 3

@@ -782,3 +782,15 @@ a.wordmark:hover {
     cursor: pointer;
     color-scheme: dark;
 }
+
+/* Note about radius filter distances */
+.showtime-radius-note {
+    font-size: 0.72rem;
+    color: var(--text-muted, #888);
+    margin: 4px 0 0 0;
+    font-style: italic;
+}
+
+/* Zip display */
+.zip-display { color: var(--text-muted, #888); } /* default: muted / red */
+.zip-display.zip-active { color: #4caf50; }       /* green when GPS-set */
