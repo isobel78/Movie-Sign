@@ -380,6 +380,9 @@ function escHtml(str) {
                             geoBtn.textContent = '⊙';
                             const mobileGeo = document.getElementById('geo-btn-mobile');
                             if (mobileGeo) mobileGeo.classList.add('geo-active');
+
+                            document.getElementById('zip-display')?.classList.add('zip-active');
+                            document.getElementById('zip-display-mobile')?.classList.add('zip-active');
                         } else {
                             geoBtn.textContent = '⚠️';
                             setTimeout(() => { geoBtn.textContent = '⊙'; }, 2000);
@@ -419,12 +422,13 @@ function escHtml(str) {
     const panel = document.getElementById('showtimes-panel');
     const datePicker = document.getElementById('showtime-date');
 
-    //radius filter state — default 25 miles
-    let selectedRadius = 25;
+    //radius filter state — default 10 miles
+    let selectedRadius = 10;
 
     //radius button group
     function radiusHTML() {
         const opts = [
+            { miles: 10, label: '10 mi' },
             { miles: 25, label: '25 mi' },
             { miles: 50, label: '50 mi' },
             { miles: 100, label: '100 mi' },
@@ -435,6 +439,7 @@ function escHtml(str) {
         return `<div class="showtime-radius-row">
             <label class="showtime-radius-label">Distance</label>
             <div class="radius-btn-group">${btns}</div>
+            <p class="showtime-radius-note">Distances are straight-line, not driving distance.</p>
         </div>`;
     }
 
