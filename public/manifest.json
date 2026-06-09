@@ -2,20 +2,20 @@
   "name": "MovieSign!",
   "short_name": "MovieSign!",
   "description": "We've got movie sign — find watchlisted films playing near you.",
-  "start_url": "/",
+  "start_url": "/public/",
   "display": "standalone",
   "background_color": "#0d0d0f",
   "theme_color": "#e8182a",
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "/icons/favicon-192.png",
+      "src": "/public/icons/favicon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/icons/favicon-512.png",
+      "src": "/public/icons/favicon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
