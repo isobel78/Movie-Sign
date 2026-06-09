@@ -2,7 +2,7 @@
   "name": "MovieSign!",
   "short_name": "MovieSign!",
   "description": "We've got movie sign — find watchlisted films playing near you.",
-  "start_url": "/public/",
+  "start_url": "/",
   "display": "standalone",
   "background_color": "#0d0d0f",
   "theme_color": "#e8182a",
