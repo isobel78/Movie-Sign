@@ -52,14 +52,17 @@ if (!empty($_SESSION['flash_message'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MovieSign!</title>
 
-    <link rel="icon" type="image/x-icon" href="favicon.ico">
-    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="favicon-180.png">
-    
+    <link rel="icon" type="image/x-icon" href="icons/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="icons/favicon-180.png">
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" href="./styles/main.css?v=<?= filemtime(__DIR__ . '/styles/main.css') ?>"> <!-- added the 'filemtime' section to force the browser to load the latest CSS changes -->
+
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#e63946">
     
 </head>
 
@@ -437,7 +440,7 @@ function escHtml(str) {
             `<button type="button" class="radius-btn${selectedRadius === o.miles ? ' radius-btn-active' : ''}" data-miles="${o.miles}">${o.label}</button>`
         ).join('');
         return `<div class="showtime-radius-row">
-            <label class="showtime-radius-label">Distance</label>
+            <span class="showtime-radius-label">Distance</span>
             <div class="radius-btn-group">${btns}</div>
             <p class="showtime-radius-note">Distances are straight-line, not driving distance.</p>
         </div>`;

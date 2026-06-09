@@ -56,7 +56,7 @@ moviesign/
 │   │   ├── mail_config.php         # Mail credentials (not in git)
 │   │   ├── movieglu_config.php     # MovieGlu API keys (not in git)
 │   │   └── tmdb_config.php         # TMDB API key (not in git)
-│   └── View/
+│   ├── View/
 │   │   └──  auth_layout.php
 ├── public/                         # Web root
 │   ├── account.php

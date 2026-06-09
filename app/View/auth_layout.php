@@ -17,11 +17,15 @@ function render_auth_page($title, $content_html) {
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 
-    <link rel="icon" type="image/x-icon" href="../public/favicon.ico">
-    <link rel="icon" type="image/png" sizes="32x32" href="../public/favicon-32.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="../public/favicon-180.png">
+    <link rel="icon" type="image/x-icon" href="../public/icons/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="../public/icons/favicon-32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="../public/icons/favicon-180.png">
     
     <link rel="stylesheet" href="../public/styles/auth.css?v=<?= filemtime(__DIR__ . '/../../public/styles/auth.css') ?>"> <!-- added the 'filemtime' section to force the browser to load the latest CSS changes -->
+
+    <link rel="manifest" href="../public/manifest.json">
+    <meta name="theme-color" content="#e63946">
+
 </head>
 
 <body>
