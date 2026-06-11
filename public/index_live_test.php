@@ -55,13 +55,13 @@ if (!empty($_SESSION['flash_message'])) {
     <link rel="icon" type="image/x-icon" href="icons/favicon.ico">
     <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
     <link rel="apple-touch-icon" sizes="180x180" href="icons/favicon-180.png">
-    
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" href="./styles/main.css?v=<?= filemtime(__DIR__ . '/styles/main.css') ?>"> <!-- added the 'filemtime' section to force the browser to load the latest CSS changes -->
 
-    <link rel="manifest" href="/manifest.json">
+    <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#e63946">
     
 </head>
@@ -137,6 +137,17 @@ if (!empty($_SESSION['flash_message'])) {
 
     <br /><hr /><br />
 
+    <!-- Movie Search -->
+    <div class="section-label">Add to Watchlist</div>
+    <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="search-input" placeholder="Search for a movie…" autocomplete="off">
+
+        <div id="search-results">
+            <div class="search-status" id="search-status">Start typing to search…</div>
+        </div>
+    </div>
+
     <!-- Watchlist -->
     <div class="section-label">
         My Watchlist
@@ -177,17 +188,6 @@ if (!empty($_SESSION['flash_message'])) {
     <?php endif; ?>
 
     <br /><br />
-
-    <!-- Movie Search -->
-    <div class="section-label">Add to Watchlist</div>
-    <div class="search-wrap">
-        <span class="search-icon">🔍</span>
-        <input type="text" id="search-input" placeholder="Search for a movie…" autocomplete="off">
-
-        <div id="search-results">
-            <div class="search-status" id="search-status">Start typing to search…</div>
-        </div>
-    </div>
 
 </main>
 
@@ -440,7 +440,7 @@ function escHtml(str) {
             `<button type="button" class="radius-btn${selectedRadius === o.miles ? ' radius-btn-active' : ''}" data-miles="${o.miles}">${o.label}</button>`
         ).join('');
         return `<div class="showtime-radius-row">
-            <label class="showtime-radius-label">Distance</label>
+            <span class="showtime-radius-label">Distance</span>
             <div class="radius-btn-group">${btns}</div>
             <p class="showtime-radius-note">Distances are straight-line, not driving distance.</p>
         </div>`;

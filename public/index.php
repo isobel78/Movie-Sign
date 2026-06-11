@@ -137,6 +137,17 @@ if (!empty($_SESSION['flash_message'])) {
 
     <br /><hr /><br />
 
+    <!-- Movie Search -->
+    <div class="section-label">Add to Watchlist</div>
+    <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="search-input" placeholder="Search for a movie…" autocomplete="off">
+
+        <div id="search-results">
+            <div class="search-status" id="search-status">Start typing to search…</div>
+        </div>
+    </div>
+
     <!-- Watchlist -->
     <div class="section-label">
         My Watchlist
@@ -177,17 +188,6 @@ if (!empty($_SESSION['flash_message'])) {
     <?php endif; ?>
 
     <br /><br />
-
-    <!-- Movie Search -->
-    <div class="section-label">Add to Watchlist</div>
-    <div class="search-wrap">
-        <span class="search-icon">🔍</span>
-        <input type="text" id="search-input" placeholder="Search for a movie…" autocomplete="off">
-
-        <div id="search-results">
-            <div class="search-status" id="search-status">Start typing to search…</div>
-        </div>
-    </div>
 
 </main>
 
