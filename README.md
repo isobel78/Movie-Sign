@@ -48,7 +48,7 @@ moviesign/
 │   │   └── watchlist.php
 │   ├── Model/
 │   │   ├── db_config.php           # Live DB credentials (not in git)
-│   │   ├── db_config_local.php     # Testing DB credentials (not in git)
+│   │   ├── db_config_local.php     # Testing DB credentials
 │   │   ├── db_session.php
 │   │   ├── db_user.php
 │   │   ├── db_watchlist.php
@@ -96,7 +96,7 @@ moviesign/
    return [
        'host'   => 'localhost',
        'dbname' => 'moviesign',
-       'user'   => 'root',
+       'user'   => '',
        'pass'   => '',
    ];
    ```
@@ -167,7 +167,7 @@ MovieSign! uses a `MOVIEGLU_ENV` constant to toggle between sandbox and live API
 Production is hosted on GoDaddy shared hosting (cPanel). Deployment is manual via FTP:
 
 1. Update `index.php` on the server to set `define('MOVIEGLU_ENV', 'sandbox'); ` → `us`
-2. FTP changed files to the server
+2. Update `db.php` on the server to set `$config = require __DIR__ . '/db_config_local.php'; ` → `$config = require __DIR__ . '/db_config.php';`
 3. Verify SSL is active and `HTTPS` redirects are in place
 
 ---
@@ -205,7 +205,9 @@ Showtime data from MovieGlu is fetched at request time and not persisted — kee
 
 ## Capstone Context
 
-MovieSign! was built as a five-week capstone project for a software development course. The final deliverable includes a recorded video walkthrough demonstrating account creation, watchlist management, and the filtered showtime view on the live hosted site.
+MovieSign! was built as a five-week capstone project for a software development course. 
+
+[Video Demonstration](https://github.com/user-attachments/assets/55c3fb28-36c9-4446-be71-b7a09ede8d61)
 
 **The core competitive differentiator:** no existing platform cross-references a personal watchlist against live theater showtimes in a single filtered view.
 
