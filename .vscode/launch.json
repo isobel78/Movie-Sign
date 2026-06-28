@@ -8,7 +8,7 @@
             "name": "Launch Chrome",
             "request": "launch",
             "type": "chrome",
-            "url": "https://localhost/ECPI/Movie-Sign/public/",
+            "url": "https://localhost/Sites/Movie-Sign/public/",
             "webRoot": "${workspaceFolder}"
         },
 

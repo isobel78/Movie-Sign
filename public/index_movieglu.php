@@ -1,6 +1,6 @@
 <?php
 // Atlanta Daniel
-// June 2026 -- switched from MovieGlu to Gracenote for showtime data
+// May 2026
 // index.php - Main Dashboard
 
 session_start();
@@ -18,10 +18,18 @@ if (empty($_SESSION['user_id'])) {
 
 require_once(__DIR__ . '/../app/Model/db_watchlist.php');
 
+// MovieGlu environment switch 
+// 'sandbox' uses free test data and shows "Sandbox" in the location display
+// 'sandbox' allows for 10,000 req/month, fake data at lat -22.0 lng 14.0
+// Change to 'us' when deploying with live US showtime data
+// 'us' is limited to 75 eval requests
+
+define('MOVIEGLU_ENV', 'sandbox');  //change to 'us' when ready for live data
+
 $userID = (int) $_SESSION['user_id'];
 $user_email = htmlspecialchars($_SESSION['user_email'] ?? '');
 $user_zip = htmlspecialchars($_SESSION['user_zip'] ?? '');
-$zip_display = $user_zip;
+$zip_display = (MOVIEGLU_ENV === 'sandbox') ? 'Sandbox' : $user_zip;
 
 //load user's watchlist from DB
 $watchlist = WatchlistDB::getWatchlist($userID);
@@ -66,7 +74,7 @@ if (!empty($_SESSION['flash_message'])) {
     <!-- Desktop user-bar (hidden on mobile) -->
     <div class="user-bar user-bar-desktop">
         <span class="user-email"><?= $user_email ?></span>
-        <span class="zip-display" id="zip-display" title="Your theater search location">
+        <span class="zip-display<?= (MOVIEGLU_ENV === 'sandbox') ? ' zip-testing' : '' ?>" id="zip-display" title="<?= (MOVIEGLU_ENV === 'sandbox') ? 'Sandbox mode active' : 'Your theater search location' ?>">
             📍 <span id="zip-value"><?= $zip_display ?></span>
         </span>
         <button type="button" id="geo-btn-header" class="btn-geo-sm" title="Update location from GPS">⊙</button>
@@ -88,8 +96,8 @@ if (!empty($_SESSION['flash_message'])) {
     <div class="mobile-nav-inner">
         <div class="mobile-nav-user">
             <span class="user-email"><?= $user_email ?></span>
-            <span class="zip-display" id="zip-display" title="Your theater search location">
-                📍 <span id="zip-value"><?= $zip_display ?></span>
+            <span class="zip-display<?= (MOVIEGLU_ENV === 'sandbox') ? ' zip-testing' : '' ?>" id="zip-display-mobile" title="<?= (MOVIEGLU_ENV === 'sandbox') ? 'Sandbox mode active' : 'Your theater search location' ?>">
+                📍 <span id="zip-value-mobile"><?= $zip_display ?></span>
             </span>
             <button type="button" id="geo-btn-mobile" class="btn-geo-sm" title="Update location from GPS">⊙</button>
         </div>
@@ -327,6 +335,7 @@ function escHtml(str) {
 (function () {
     const geoBtn = document.getElementById('geo-btn-header');
     const zipValue = document.getElementById('zip-value');
+    const isSandbox = <?= json_encode(MOVIEGLU_ENV === 'sandbox') ?>;
 
     if (!geoBtn) return;
 
@@ -363,9 +372,12 @@ function escHtml(str) {
                         const result = await save.json();
 
                         if (result.success) {
-                            zipValue.textContent = zip;
-                            const mobileZip = document.getElementById('zip-value-mobile');
-                            if (mobileZip) mobileZip.textContent = zip;
+                            //in live mode, update the visible zip label (desktop + mobile)
+                            if (!isSandbox) {
+                                zipValue.textContent = zip;
+                                const mobileZip = document.getElementById('zip-value-mobile');
+                                if (mobileZip) mobileZip.textContent = zip;
+                            }
                             //turn both geo buttons green to show GPS is active
                             geoBtn.classList.add('geo-active');
                             geoBtn.textContent = '⊙';
@@ -430,7 +442,7 @@ function escHtml(str) {
         return `<div class="showtime-radius-row">
             <span class="showtime-radius-label">Distance</span>
             <div class="radius-btn-group">${btns}</div>
-            <p class="showtime-radius-note">Showing theaters within ${selectedRadius} miles of your zip code.</p>
+            <p class="showtime-radius-note">Distances are straight-line, not driving distance.</p>
         </div>`;
     }
 
@@ -496,7 +508,7 @@ function escHtml(str) {
                 radius: selectedRadius,
             });
 
-            const res = await fetch(`../app/Controller/gracenote_showtimes.php?${params}`);
+            const res = await fetch(`../app/Controller/movieglu_showtimes.php?${params}&env=<?= urlencode(MOVIEGLU_ENV) ?>`);
             const data = await res.json();
 
             if (data.error) {
@@ -613,9 +625,13 @@ function escHtml(str) {
                 const timePills = times.map(t =>
                     `<span class="st-time">${escHtml(to12h(t))}</span>`
                 ).join('');
-
+                // pick the distance from the first entry for this cinema
+                const distEntry = film.times.find(t => t.cinema === cinema);
+                const distLabel = (distEntry && distEntry.distance != null)
+                    ? ` <span class="st-distance">${parseFloat(distEntry.distance).toFixed(1)} mi</span>`
+                    : '';
                 cinemasHTML += `<div class="st-cinema">
-                    <div class="st-cinema-name">🎬 ${escHtml(cinema)}</div>
+                    <div class="st-cinema-name">🎬 ${escHtml(cinema)}${distLabel}</div>
                     <div class="st-times">${timePills}</div>
                 </div>`;
             }
