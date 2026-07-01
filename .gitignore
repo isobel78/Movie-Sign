@@ -1,6 +1,8 @@
 #.DS_Store files on MacOS
 .DS_Store
 
+.vscode/launch.json
+
 # config files
 app/Model/db_config.php
 app/Model/movieglu_config.php
