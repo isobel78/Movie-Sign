@@ -8,6 +8,9 @@ app/Model/TMDB_config.php
 app/Model/mail_config.php
 app/Model/gracenote_config.php
 
+# Admin debug page
+admin_gracenote.php
+
 # PHPMailer files
 vendor/*
 

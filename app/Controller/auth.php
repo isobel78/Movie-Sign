@@ -93,6 +93,7 @@ if ($action === 'register') {
         $_SESSION['user_id'] = $user['user_ID'];
         $_SESSION['user_email'] = $user['email'];
         $_SESSION['user_zip'] = $user['zip_code'];
+        $_SESSION['user_default_radius'] = 10;
 
         //start a server-side session token
         SessionDB::pruneExpired();
@@ -126,6 +127,7 @@ elseif ($action === 'login') {
     $_SESSION['user_id'] = $user['user_ID'];
     $_SESSION['user_email'] = $user['email'];
     $_SESSION['user_zip'] = $user['zip_code'];
+    $_SESSION['user_default_radius'] = (int)($user['default_radius'] ?? 10);
 
     //create server-side token
     SessionDB::pruneExpired();
@@ -229,6 +231,13 @@ elseif ($action === 'update_account') {
     if (UserDB::updateUser($userID, $newEmail, $newHash, $newZip)) {
         $_SESSION['user_email'] = $newEmail;
         $_SESSION['user_zip']   = $newZip;
+
+        // Update default search radius
+        $newRadius = (int)($_POST['default_radius'] ?? 10);
+        if (!in_array($newRadius, [10, 25, 50, 100], true)) $newRadius = 10;
+        UserDB::updateDefaultRadius($userID, $newRadius);
+        $_SESSION['user_default_radius'] = $newRadius;
+
         redirect_with_msg('../../public/account.php', 'success', "Account updated successfully.");
     } else {
         redirect_with_msg('../../public/account.php', 'error', "Update failed. Please try again.");

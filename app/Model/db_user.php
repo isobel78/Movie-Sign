@@ -76,6 +76,23 @@ class UserDB {
         return $stmt->execute();
     }
 
+    //update default search radius for a user
+    public static function updateDefaultRadius(int $userID, int $radius): bool {
+        $db = new Database();
+        $dbConn = $db->getDbConn();
+
+        if (!$dbConn) return false;
+
+        $stmt = $dbConn->prepare(
+            "UPDATE users 
+             SET default_radius = ? 
+             WHERE user_ID = ?"
+        );
+        $stmt->bind_param("ii", $radius, $userID);
+
+        return $stmt->execute();
+    }
+
     //delete a user by user_ID
     public static function deleteUser($userID) {
         $db = new Database();

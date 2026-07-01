@@ -794,3 +794,45 @@ a.wordmark:hover {
 /* Zip display */
 .zip-display { color: var(--text-muted, #888); } /* default: muted / red */
 .zip-display.zip-active { color: #4caf50; }       /* green when GPS-set */
+/* ── Mobile header zip pill ── */
+/* Hidden on desktop; visible between wordmark and hamburger on mobile */
+.header-zip-pill {
+    display: none;
+    align-items: center;
+    gap: 0.25rem;
+    background: rgba(232, 24, 42, 0.08);
+    border: 1px solid rgba(232, 24, 42, 0.3);
+    border-radius: 6px;
+    color: var(--red);
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 0.25rem 0.65rem;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.15s, border-color 0.15s;
+    /* Push it to fill the gap between wordmark and hamburger */
+    margin-left: auto;
+    margin-right: 0.75rem;
+}
+.header-zip-pill:hover {
+    background: rgba(232, 24, 42, 0.16);
+    border-color: var(--red);
+}
+@media (max-width: 600px) {
+    .header-zip-pill { display: flex; }
+}
+
+/* ── Theater distance badge ── */
+/* Shown after the cinema name in showtime results */
+.st-distance {
+    font-size: 0.72rem;
+    font-weight: 400;
+    color: var(--muted);
+    margin-left: 0.35rem;
+}
+
+/* ── Account page: default radius select ── */
+#default_radius {
+    max-width: 200px;
+}

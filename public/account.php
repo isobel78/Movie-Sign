@@ -1,7 +1,7 @@
 <?php
 
 // Atlanta Daniel
-// May 2026
+// June 2026
 // account.php - User account settings: edit email, password, and location
 
 session_start();
@@ -20,6 +20,7 @@ require_once(__DIR__ . '/../app/View/auth_layout.php');
 $userID = (int) $_SESSION['user_id'];
 $userEmail  = htmlspecialchars($_SESSION['user_email'] ?? '');
 $userZip = htmlspecialchars($_SESSION['user_zip']   ?? '');
+$userDefaultRadius = (int)($_SESSION['user_default_radius'] ?? 10);
 
 //flash message
 $flash_type = '';
@@ -84,6 +85,19 @@ ob_start();
             </button>
         </div>
         <p class="hint" id="geo-status">Used to find theaters near you.</p>
+    </div>
+
+    <hr class="divider">
+
+    <!-- Default search radius -->
+    <div class="field">
+        <label for="default_radius">Default Search Radius</label>
+        <select id="default_radius" name="default_radius">
+            <?php foreach ([10, 25, 50, 100] as $r): ?>
+                <option value="<?= $r ?>"<?= $userDefaultRadius === $r ? ' selected' : '' ?>><?= $r ?> miles</option>
+            <?php endforeach; ?>
+        </select>
+        <p class="hint">Used as the starting radius when you check showtimes.</p>
     </div>
 
     <button type="submit" class="btn-primary">💾 Save Changes</button>

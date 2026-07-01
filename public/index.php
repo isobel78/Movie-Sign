@@ -17,11 +17,19 @@ if (empty($_SESSION['user_id'])) {
 }
 
 require_once(__DIR__ . '/../app/Model/db_watchlist.php');
+require_once(__DIR__ . '/../app/Model/db_user.php');
 
 $userID = (int) $_SESSION['user_id'];
 $user_email = htmlspecialchars($_SESSION['user_email'] ?? '');
 $user_zip = htmlspecialchars($_SESSION['user_zip'] ?? '');
 $zip_display = $user_zip;
+
+//load default radius
+if (!isset($_SESSION['user_default_radius'])) {
+    $dbUserRow = UserDB::getUser($userID);
+    $_SESSION['user_default_radius'] = (int)($dbUserRow['default_radius'] ?? 10);
+}
+$user_default_radius = (int)$_SESSION['user_default_radius'];
 
 //load user's watchlist from DB
 $watchlist = WatchlistDB::getWatchlist($userID);
@@ -76,6 +84,11 @@ if (!empty($_SESSION['flash_message'])) {
             <button type="submit" class="btn-logout">Sign out</button>
         </form>
     </div>
+
+    <!-- Zip code display (mobile only — tap to refresh location) -->
+    <button type="button" class="header-zip-pill" id="header-zip-pill" title="Tap to update location">
+        📍 <span id="zip-value-mobile-pill"><?= $zip_display ?></span>
+    </button>
 
     <!-- Hamburger button (mobile only) -->
     <button class="hamburger" id="hamburger-btn" aria-label="Open menu" aria-expanded="false">
@@ -405,16 +418,15 @@ function escHtml(str) {
 </script>
 
 <script>
-//MovieGlu Showtimes
-// Pulls showtimes for the selected date and cross-references them against titles on user's watchlist
+//Showtimes - pulls showtimes for the selected date and cross-references them against titles on user's watchlist
 
 (function () {
     const refreshBtn = document.getElementById('showtimes-refresh-btn');
     const panel = document.getElementById('showtimes-panel');
     const datePicker = document.getElementById('showtime-date');
 
-    //radius filter state — default 10 miles
-    let selectedRadius = 10;
+    //radius filter state — loaded from user's saved default
+    let selectedRadius = <?= (int)$user_default_radius ?>;
 
     //radius button group
     function radiusHTML() {
@@ -430,7 +442,7 @@ function escHtml(str) {
         return `<div class="showtime-radius-row">
             <span class="showtime-radius-label">Distance</span>
             <div class="radius-btn-group">${btns}</div>
-            <p class="showtime-radius-note">Showing theaters within ${selectedRadius} miles of your zip code.</p>
+            <!-- <p class="showtime-radius-note">Search theaters within ${selectedRadius} miles of your zip code.</p> -->
         </div>`;
     }
 
@@ -541,10 +553,13 @@ function escHtml(str) {
             <span class="showtimes-error-icon">⚠️</span>
             <p>${escHtml(msg)}</p>
             <p class="showtimes-note">Check that your location is set and try again.</p>
-            ${radiusHTML()}
-            <div class="showtime-date-row showtime-date-retry">
-                <label for="showtime-date-error" class="showtime-date-label">📅 Try a different date</label>
-                <input type="date" id="showtime-date-error" class="showtime-date-input" value="${escHtml(selectedDate)}"  autocomplete="off">
+            <div style="margin-top:1.5rem; padding-top:1.25rem; border-top:1px solid rgba(255,255,255,0.1); text-align:center;">
+                <div class="showtime-date-row">
+                    <label for="showtime-date-error" class="showtime-date-label">Date</label>
+                    <input type="date" id="showtime-date-error" class="showtime-date-input" value="${escHtml(selectedDate)}" autocomplete="off">
+                </div>
+                ${radiusHTML()}
+                <br />
                 <button type="button" class="btn-showtimes-refresh btn-showtimes-retry" id="error-retry-btn">Check Showtimes</button>
             </div>
         </div>`;
@@ -564,14 +579,17 @@ function escHtml(str) {
             <p>None of your watchlist films are showing near you on this date.</p>`;
 
         if (allShowing.length > 0) {
-            msg += `<p class="showtimes-note">Currently showing nearby:<br>
-                <em>${allShowing.map(escHtml).join(', ')}</em></p>`;
+            msg += `<p class="showtimes-note"><strong>Titles showing nearby:</strong><br>
+                <em>${allShowing.map(escHtml).join(', ')}</em></p><br>`;
         }
 
-        msg += `${radiusHTML()}
-        <div class="showtime-date-row showtime-date-retry">
-            <label for="showtime-date-empty" class="showtime-date-label">📅 Try a different date</label>
-            <input type="date" id="showtime-date-empty" class="showtime-date-input" value="${escHtml(selectedDate)}" autocomplete="off">
+        msg += `<div style="margin-top:1.5rem; padding-top:1.25rem; border-top:1px solid rgba(255,255,255,0.1); text-align:center;">
+            <div class="showtime-date-row">
+                <label for="showtime-date-empty" class="showtime-date-label">Date</label>
+                <input type="date" id="showtime-date-empty" class="showtime-date-input" value="${escHtml(selectedDate)}" autocomplete="off">
+            </div>
+            ${radiusHTML()}
+            <br />
             <button type="button" class="btn-showtimes-refresh btn-showtimes-retry" id="empty-retry-btn">Check Showtimes</button>
         </div>
         </div>`;
@@ -594,6 +612,7 @@ function escHtml(str) {
             <strong>WE'VE GOT MOVIE SIGN!</strong>
             <span class="moviesign-siren">🚨</span>
         </div>
+        <p class="showtime-radius-note" style="text-align:center; margin:0.4rem 0 0.75rem;">Showing theaters within ${selectedRadius} miles of your zip code.</p>
         <div class="showtimes-grid">`;
 
         for (const film of showtimes) {
@@ -603,8 +622,12 @@ function escHtml(str) {
 
             //group times by cinema
             const byCinema = {};
+            const cinemaDistance = {};
             for (const t of film.times) {
-                if (!byCinema[t.cinema]) byCinema[t.cinema] = [];
+                if (!byCinema[t.cinema]) {
+                    byCinema[t.cinema] = [];
+                    cinemaDistance[t.cinema] = t.distance ?? null;
+                }
                 byCinema[t.cinema].push(t.showtime);
             }
 
@@ -614,8 +637,11 @@ function escHtml(str) {
                     `<span class="st-time">${escHtml(to12h(t))}</span>`
                 ).join('');
 
+                const distStr = (cinemaDistance[cinema] !== null && cinemaDistance[cinema] !== undefined)
+                    ? ` <span class="st-distance">${cinemaDistance[cinema]} mi</span>` : '';
+
                 cinemasHTML += `<div class="st-cinema">
-                    <div class="st-cinema-name">🎬 ${escHtml(cinema)}</div>
+                    <div class="st-cinema-name">🎬 ${escHtml(cinema)}${distStr}</div>
                     <div class="st-times">${timePills}</div>
                 </div>`;
             }
@@ -630,10 +656,13 @@ function escHtml(str) {
         }
 
         html += `</div>
-        ${radiusHTML()}
-        <div class="showtime-date-row showtime-date-retry">
-            <label for="showtime-date-retry" class="showtime-date-label">📅 Try a different date</label>
-            <input type="date" id="showtime-date-retry" class="showtime-date-input" autocomplete="off">
+        <div style="margin-top:1.5rem; padding-top:1.25rem; border-top:1px solid rgba(255,255,255,0.1); text-align:center;">
+            <div class="showtime-date-row">
+                <label for="showtime-date-retry" class="showtime-date-label">Date</label>
+                <input type="date" id="showtime-date-retry" class="showtime-date-input" autocomplete="off">
+            </div>
+            ${radiusHTML()}
+            <br />
             <button type="button" class="btn-showtimes-refresh btn-showtimes-retry">Check Showtimes</button>
         </div>`;
         panel.innerHTML = html;
@@ -684,6 +713,14 @@ function escHtml(str) {
     if (mobileGeoBtn && desktopGeoBtn) {
         mobileGeoBtn.addEventListener('click', () => {
             closeMenu();
+            desktopGeoBtn.click();
+        });
+    }
+
+    // Mobile header zip pill — tap to refresh location (no menu needed)
+    const headerZipPill = document.getElementById('header-zip-pill');
+    if (headerZipPill && desktopGeoBtn) {
+        headerZipPill.addEventListener('click', () => {
             desktopGeoBtn.click();
         });
     }

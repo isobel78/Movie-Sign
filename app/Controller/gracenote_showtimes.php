@@ -66,22 +66,22 @@ if ($rawTitles) {
 
 // Fetch movies showing near the zip on the requested date
 $url = $cfg['base_url'] . 'movies/showings?' . http_build_query([
-    'api_key'   => $cfg['api_key'],
-    'zip'       => $zip,
+    'api_key' => $cfg['api_key'],
+    'zip' => $zip,
     'startDate' => $showtimeDate,
-    'numDays'   => 1,
-    'radius'    => $radiusMiles,
+    'numDays' => 1,
+    'radius' => $radiusMiles,
 ]);
 
 $ch = curl_init();
 curl_setopt_array($ch, [
-    CURLOPT_URL            => $url,
+    CURLOPT_URL => $url,
     CURLOPT_RETURNTRANSFER => true,
-    CURLOPT_TIMEOUT        => 10,
+    CURLOPT_TIMEOUT => 10,
     CURLOPT_SSL_VERIFYPEER => true,
 ]);
-$body      = curl_exec($ch);
-$httpCode  = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+$body = curl_exec($ch);
+$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 $curlError = curl_error($ch);
 curl_close($ch);
 
@@ -141,6 +141,7 @@ if (empty($matched)) {
 
 // Build output — group showtimes by film, then by cinema
 $showtimes = [];
+$now = new DateTime('now', $userTz);
 
 foreach ($matched as $film) {
     $tmsId = $film['tmsId'] ?? '';
@@ -149,13 +150,22 @@ foreach ($matched as $film) {
 
     foreach ($film['showtimes'] ?? [] as $showing) {
         $cinemaName = $showing['theatre']['name'] ?? 'Unknown Cinema';
-        $rawTime    = $showing['dateTime'] ?? '';        // ISO 8601: "2026-06-28T14:00"
+        $rawTime = $showing['dateTime'] ?? '';  // ISO 8601: "2026-06-28T14:00"
+        $distanceMiles = isset($showing['theatre']['distance'])
+            ? round((float) $showing['theatre']['distance'], 1)
+            : null;
         $displayTime = $rawTime;
 
         if (preg_match('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/', $rawTime)) {
             try {
                 // Gracenote times are local theater time, no timezone offset
                 $dt = new DateTime($rawTime, $userTz);
+
+                // Skip past showtimes
+                if ($dt < $now) {
+                    continue;
+                }
+
                 $displayTime = $dt->format('g:i A');
             } catch (Exception $e) {
                 $displayTime = $rawTime;
@@ -165,7 +175,7 @@ foreach ($matched as $film) {
         $times[] = [
             'cinema'   => $cinemaName,
             'showtime' => $displayTime,
-            'distance' => null,   // Gracenote doesn't return distance per showing
+            'distance' => $distanceMiles,
         ];
     }
 
@@ -173,11 +183,11 @@ foreach ($matched as $film) {
         $showtimes[] = [
             'film_id' => $tmsId,
             'title'   => $title,
-            'poster'  => null,    // Gracenote doesn't return posters — TMDB already covers this
+            'poster'  => null, // poster coming from TMDB
             'times'   => $times,
         ];
     }
 }
 
 header('Content-Type: application/json');
-echo json_encode(['showtimes' => $showtimes]);
+echo json_encode(['showtimes' => $showtimes, 'all_showing' => $allTitles]);

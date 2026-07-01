@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS users (
   created_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   reset_token VARCHAR(64) NULL DEFAULT NULL,
   reset_token_expires TIMESTAMP NULL DEFAULT NULL,
+  default_radius INT NOT NULL DEFAULT 10,
   INDEX idx_reset_token (reset_token)
 );
 
