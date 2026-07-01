@@ -19,4 +19,10 @@ jobs:
         server: ${{ secrets.FTP_SERVER }}
         username: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
-        server-dir: /public_html/moviesign.atlantadaniel.com # Uncomment and adjust if your site is in a specific folder
+        server-dir: / # Uncomment and adjust if your site is in a specific folder
+        exclude: |
+          **/.git*
+          **/.gitignore
+          **/node_modules/**
+          **/.vscode/**
+          **/.DS_Store
