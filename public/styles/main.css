@@ -819,6 +819,15 @@ a.wordmark:hover {
     background: rgba(232, 24, 42, 0.16);
     border-color: var(--red);
 }
+.header-zip-pill.zip-active {
+    color: #4caf50;
+    background: rgba(76, 175, 80, 0.1);
+    border-color: rgba(76, 175, 80, 0.4);
+}
+.header-zip-pill.zip-active:hover {
+    background: rgba(76, 175, 80, 0.18);
+    border-color: #4caf50;
+}
 @media (max-width: 600px) {
     .header-zip-pill { display: flex; }
 }
@@ -835,4 +844,114 @@ a.wordmark:hover {
 /* ── Account page: default radius select ── */
 #default_radius {
     max-width: 200px;
+}
+
+/* ── Film detail overlay ── */
+.film-card-trigger { cursor: pointer; }
+ 
+.film-overlay-backdrop {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.65);
+    z-index: 900; opacity: 0; pointer-events: none;
+    transition: opacity 0.2s ease;
+}
+.film-overlay-backdrop.open { opacity: 1; pointer-events: auto; }
+ 
+body.film-overlay-lock { overflow: hidden; }
+ 
+/* Desktop / default: centered modal card */
+.film-overlay {
+    position: fixed; z-index: 901;
+    top: 50%; left: 50%;
+    width: min(640px, 92vw);
+    max-height: 85vh;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    opacity: 0; visibility: hidden;
+    transform: translate(-50%, -48%) scale(0.97);
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+}
+.film-overlay.open {
+    opacity: 1; visibility: visible;
+    transform: translate(-50%, -50%) scale(1);
+}
+.film-overlay-close {
+    position: absolute; top: 0.75rem; right: 0.75rem; z-index: 2;
+    width: 34px; height: 34px; border-radius: 50%;
+    background: rgba(24,24,28,0.85); border: 1px solid var(--border);
+    color: var(--sub); font-size: 1rem; line-height: 1; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: color 0.15s, border-color 0.15s;
+}
+.film-overlay-close:hover { color: var(--red); border-color: var(--red); }
+.film-overlay-body {
+    overflow-y: auto;
+    padding: 1.75rem 1.5rem 1.5rem;
+}
+ 
+.film-overlay-hero { display: flex; gap: 1.25rem; flex-wrap: wrap; margin-bottom: 0.5rem; }
+.film-overlay-poster {
+    width: 130px; height: 195px; object-fit: cover; border-radius: 10px;
+    border: 1px solid var(--border); background: var(--panel2); flex-shrink: 0;
+}
+.film-overlay-info { flex: 1; min-width: 200px; }
+.film-overlay-title {
+    font-family: var(--font-display); font-size: 1.5rem; letter-spacing: 0.03em;
+    color: var(--text); margin-bottom: 0.25rem; padding-right: 2rem;
+}
+.film-overlay-tagline { color: var(--muted); font-style: italic; font-size: 0.88rem; margin-bottom: 0.65rem; }
+.film-overlay-director { font-size: 0.85rem; color: var(--sub); margin-bottom: 0.5rem; }
+.film-overlay-director strong { color: var(--text); }
+.film-overlay-overview { font-size: 0.9rem; color: var(--sub); line-height: 1.55; margin-top: 0.4rem; }
+ 
+.chip-row { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.6rem; }
+.chip {
+    background: var(--panel2); border: 1px solid var(--border); border-radius: 999px;
+    padding: 0.2rem 0.7rem; font-size: 0.76rem; color: var(--sub);
+}
+ 
+.cast-grid { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 0.75rem; }
+.cast-card { width: 84px; text-align: center; }
+.cast-photo {
+    width: 68px; height: 68px; border-radius: 50%; object-fit: cover;
+    background: var(--panel2); border: 1px solid var(--border); margin: 0 auto 0.35rem;
+}
+.cast-name { font-size: 0.74rem; font-weight: 600; color: var(--text); }
+.cast-role { font-size: 0.68rem; color: var(--muted); }
+ 
+.provider-group { margin-top: 0.85rem; }
+.provider-group h4 {
+    font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.05em;
+    color: var(--muted); margin-bottom: 0.45rem; font-weight: 700;
+}
+.provider-row { display: flex; flex-wrap: wrap; gap: 0.55rem; }
+.provider-logo { width: 38px; height: 38px; border-radius: 8px; border: 1px solid var(--border); }
+ 
+.film-overlay-loading, .film-overlay-error {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 2.5rem 1rem; text-align: center; color: var(--sub); gap: 0.75rem;
+}
+ 
+/* Mobile: bottom sheet, since mobile is the primary way this app gets used */
+@media (max-width: 600px) {
+    .film-overlay {
+        top: auto; bottom: 0; left: 0;
+        width: 100%; max-width: 100%;
+        max-height: 88vh;
+        border-radius: 18px 18px 0 0;
+        transform: translateY(100%);
+        transition: transform 0.25s ease, opacity 0.2s ease, visibility 0.25s;
+    }
+    .film-overlay.open { transform: translateY(0); }
+    .film-overlay::before {
+        content: ''; display: block; width: 40px; height: 4px;
+        background: var(--border); border-radius: 999px;
+        margin: 0.6rem auto 0;
+    }
+    .film-overlay-body { padding: 0.75rem 1.1rem 2rem; }
+    .film-overlay-poster { width: 100px; height: 150px; }
+    .film-overlay-title { font-size: 1.3rem; }
 }

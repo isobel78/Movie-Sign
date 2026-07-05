@@ -12,6 +12,7 @@ app/Model/gracenote_config.php
 
 # Admin debug page
 admin_gracenote.php
+admin_tmdb.php
 
 # PHPMailer files
 vendor/*

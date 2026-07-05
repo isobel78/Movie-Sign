@@ -64,6 +64,12 @@ if (!empty($_SESSION['flash_message'])) {
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#e63946">
     
+    <meta property="og:title" content="MovieSign!" />
+    <meta property="og:description" content="Create a watchlist and find out when your movies are showing nearby." />
+    <meta property="og:image" content="https://moviesign.atlantadaniel.com/public/icons/og-image.png" />
+    <meta property="og:url" content="https://moviesign.atlantadaniel.com/" />
+    <meta property="og:type" content="website" />
+    
 </head>
 
 <body>
@@ -75,7 +81,7 @@ if (!empty($_SESSION['flash_message'])) {
     <div class="user-bar user-bar-desktop">
         <span class="user-email"><?= $user_email ?></span>
         <span class="zip-display" id="zip-display" title="Your theater search location">
-            📍 <span id="zip-value"><?= $zip_display ?></span>
+            <span id="zip-value"><?= $zip_display ?></span>
         </span>
         <button type="button" id="geo-btn-header" class="btn-geo-sm" title="Update location from GPS">⊙</button>
         <a href="account.php" class="btn-account">⚙ Account</a>
@@ -87,7 +93,7 @@ if (!empty($_SESSION['flash_message'])) {
 
     <!-- Zip code display (mobile only — tap to refresh location) -->
     <button type="button" class="header-zip-pill" id="header-zip-pill" title="Tap to update location">
-        📍 <span id="zip-value-mobile-pill"><?= $zip_display ?></span>
+        <span id="zip-value-mobile-pill"><?= $zip_display ?></span>
     </button>
 
     <!-- Hamburger button (mobile only) -->
@@ -101,8 +107,8 @@ if (!empty($_SESSION['flash_message'])) {
     <div class="mobile-nav-inner">
         <div class="mobile-nav-user">
             <span class="user-email"><?= $user_email ?></span>
-            <span class="zip-display" id="zip-display" title="Your theater search location">
-                📍 <span id="zip-value"><?= $zip_display ?></span>
+            <span class="zip-display" id="zip-display-mobile" title="Your theater search location">
+                <span id="zip-value-mobile"><?= $zip_display ?></span>
             </span>
             <button type="button" id="geo-btn-mobile" class="btn-geo-sm" title="Update location from GPS">⊙</button>
         </div>
@@ -169,7 +175,7 @@ if (!empty($_SESSION['flash_message'])) {
     <?php else: ?>
         <div class="watchlist-grid">
             <?php foreach ($watchlist as $item): ?>
-                <div class="movie-card">
+                <div class="movie-card film-card-trigger" data-film-id="<?= htmlspecialchars($item['film_ID']) ?>" data-film-title="<?= htmlspecialchars($item['title']) ?>" tabindex="0" role="button" aria-haspopup="dialog">
                     <?php if ($item['poster_url']): ?>
                         <img src="<?= htmlspecialchars($item['poster_url']) ?>" alt="<?= htmlspecialchars($item['title']) ?> poster"
                              loading="lazy">
@@ -181,7 +187,7 @@ if (!empty($_SESSION['flash_message'])) {
                         <div class="movie-card-title"><?= htmlspecialchars($item['title']) ?></div>
 
                         <!-- Remove button -->
-                        <form method="POST" action="../app/Controller/watchlist.php">
+                        <form method="POST" action="../app/Controller/watchlist.php" class="remove-form" onclick="event.stopPropagation()">
                             <input type="hidden" name="action" value="remove">
                             <input type="hidden" name="watchlist_id" value="<?= (int)$item['watchlist_ID'] ?>">
                             <button type="submit" class="btn-remove">✕ Remove</button>
@@ -195,6 +201,15 @@ if (!empty($_SESSION['flash_message'])) {
     <br /><br />
 
 </main>
+
+<!-- Film detail overlay -->
+<div class="film-overlay-backdrop" id="film-overlay-backdrop"></div>
+<div class="film-overlay" id="film-overlay" role="dialog" aria-modal="true" aria-hidden="true" aria-label="Film details">
+    <button type="button" class="film-overlay-close" id="film-overlay-close" aria-label="Close">✕</button>
+    <div class="film-overlay-body" id="film-overlay-body">
+        <!-- populated by JS -->
+    </div>
+</div>
 
 <!-- Hidden "add" forms get injected here by JS and auto-submitted -->
 <div id="form-sink" style="display:none;"></div>
@@ -379,6 +394,8 @@ function escHtml(str) {
                             zipValue.textContent = zip;
                             const mobileZip = document.getElementById('zip-value-mobile');
                             if (mobileZip) mobileZip.textContent = zip;
+                            const pillZip = document.getElementById('zip-value-mobile-pill');
+                            if (pillZip) pillZip.textContent = zip;
                             //turn both geo buttons green to show GPS is active
                             geoBtn.classList.add('geo-active');
                             geoBtn.textContent = '⊙';
@@ -387,6 +404,7 @@ function escHtml(str) {
 
                             document.getElementById('zip-display')?.classList.add('zip-active');
                             document.getElementById('zip-display-mobile')?.classList.add('zip-active');
+                            document.getElementById('header-zip-pill')?.classList.add('zip-active');
                         } else {
                             geoBtn.textContent = '⚠️';
                             setTimeout(() => { geoBtn.textContent = '⊙'; }, 2000);
@@ -724,6 +742,181 @@ function escHtml(str) {
             desktopGeoBtn.click();
         });
     }
+})();
+</script>
+
+<script>
+// Film detail overlay
+(function () {
+    const backdrop = document.getElementById('film-overlay-backdrop');
+    const overlay = document.getElementById('film-overlay');
+    const body = document.getElementById('film-overlay-body');
+    const closeBtn = document.getElementById('film-overlay-close');
+
+    const cache = {}; // film_id -> parsed detail JSON, avoid refetching on repeat opens
+
+    function escHtml(s) {
+        return String(s).replace(/[&<>"']/g, c => ({
+            '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+        }[c]));
+    }
+
+    function formatReleaseDate(iso) {
+        if (!iso) return '';
+        const [y, m, d] = iso.split('-').map(Number);
+        const date = new Date(y, m - 1, d); // local-time constructor, not new Date(iso)
+        return date.toLocaleDateString('en-US', { month: 'short', day: '2-digit' });
+    }
+
+    function isFutureDate(iso) {
+        if (!iso) return false;
+        const [y, m, d] = iso.split('-').map(Number);
+        const date = new Date(y, m - 1, d);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        return date.getTime() > today.getTime();
+    }
+
+    function openOverlay() {
+        backdrop.classList.add('open');
+        overlay.classList.add('open');
+        overlay.setAttribute('aria-hidden', 'false');
+        document.body.classList.add('film-overlay-lock');
+    }
+
+    function closeOverlay() {
+        backdrop.classList.remove('open');
+        overlay.classList.remove('open');
+        overlay.setAttribute('aria-hidden', 'true');
+        document.body.classList.remove('film-overlay-lock');
+    }
+
+    function renderLoading(title) {
+        body.innerHTML = `
+            <div class="film-overlay-loading">
+                <div class="showtimes-spinner"></div>
+                <p>Loading ${escHtml(title)}…</p>
+            </div>`;
+    }
+
+    function renderError(msg) {
+        body.innerHTML = `
+            <div class="film-overlay-error">
+                <span class="showtimes-error-icon">⚠️</span>
+                <p>${escHtml(msg)}</p>
+            </div>`;
+    }
+
+    function renderDetail(d) {
+        const runtimeHTML = d.runtime ? `<span class="chip">${d.runtime} min</span>` : '';
+        const ratingHTML = d.rating ? `<span class="chip">★ ${Math.round(d.rating * 10) / 10}/10 (${d.vote_count})</span>` : '';
+        const release_dateHTML = isFutureDate(d.release_date)
+            ? `<span class="chip">Opens ${escHtml(formatReleaseDate(d.release_date))}</span>` : '';
+        const directorHTML = d.director
+            ? `<div class="film-overlay-director">Directed by <strong>${escHtml(d.director)}</strong></div>` : '';
+        const posterHTML = d.poster_url
+            ? `<img class="film-overlay-poster" src="${escHtml(d.poster_url)}" alt="${escHtml(d.title)} poster">`
+            : `<div class="film-overlay-poster poster-placeholder">🎞️</div>`;
+
+        let castHTML = '';
+        if (d.cast && d.cast.length) {
+            castHTML = `
+                <div class="section-label" style="margin-top:1.25rem;">Top Billed Cast</div>
+                <div class="cast-grid">
+                    ${d.cast.map(p => `
+                        <div class="cast-card">
+                            ${p.photo_url
+                                ? `<img class="cast-photo" src="${escHtml(p.photo_url)}" alt="${escHtml(p.name)}">`
+                                : `<div class="cast-photo"></div>`}
+                            <div class="cast-name">${escHtml(p.name)}</div>
+                            <div class="cast-role">${escHtml(p.character)}</div>
+                        </div>`).join('')}
+                </div>`;
+        }
+
+        body.innerHTML = `
+            <div class="film-overlay-hero">
+                ${posterHTML}
+                <div class="film-overlay-info">
+                    <div class="film-overlay-title">${escHtml(d.title)}${d.year ? ` (${escHtml(d.year)})` : ''}</div>
+                    ${d.tagline ? `<div class="film-overlay-tagline">"${escHtml(d.tagline)}"</div>` : ''}
+                    <div class="chip-row">${release_dateHTML}${runtimeHTML}${ratingHTML}</div>
+                    ${directorHTML}
+                    <div class="film-overlay-overview">${escHtml(d.overview || '')}</div>
+                </div>
+            </div>
+            ${castHTML}
+        `;
+    }
+
+    async function loadFilm(filmId, title) {
+        if (cache[filmId]) {
+            renderDetail(cache[filmId]);
+            return;
+        }
+
+        renderLoading(title);
+
+        try {
+            const res = await fetch(`../app/Controller/film_details.php?film_id=${encodeURIComponent(filmId)}`);
+            const data = await res.json();
+            if (!res.ok || data.error) {
+                renderError(data.error || 'Could not load film details.');
+                return;
+            }
+            cache[filmId] = data;
+            renderDetail(data);
+        } catch (e) {
+            renderError('Something went wrong reaching the server.');
+        }
+    }
+
+    // Opening pushes a history entry so the device/browser back button closes
+    // the overlay instead of leaving index.php. Closing via UI (✕, backdrop,
+    // Escape) calls history.back() when we own the top entry, so back/forward
+    // stays consistent either way the overlay gets closed.
+    function openFilmOverlay(filmId, title) {
+        const state = { filmOverlay: true, filmId };
+        if (overlay.classList.contains('open')) {
+            history.replaceState(state, '', `#film-${filmId}`);
+        } else {
+            history.pushState(state, '', `#film-${filmId}`);
+        }
+        openOverlay();
+        loadFilm(filmId, title);
+    }
+
+    function requestClose() {
+        if (history.state && history.state.filmOverlay) {
+            history.back(); // triggers popstate below, which closes the overlay
+        } else {
+            closeOverlay();
+        }
+    }
+
+    window.addEventListener('popstate', (e) => {
+        if (!e.state || !e.state.filmOverlay) {
+            closeOverlay();
+        }
+    });
+
+    document.querySelectorAll('.film-card-trigger').forEach(card => {
+        card.addEventListener('click', () => {
+            openFilmOverlay(card.dataset.filmId, card.dataset.filmTitle);
+        });
+        card.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                openFilmOverlay(card.dataset.filmId, card.dataset.filmTitle);
+            }
+        });
+    });
+
+    closeBtn.addEventListener('click', requestClose);
+    backdrop.addEventListener('click', requestClose);
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && overlay.classList.contains('open')) requestClose();
+    });
 })();
 </script>
 </body>
