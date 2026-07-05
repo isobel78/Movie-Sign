@@ -765,7 +765,7 @@ function escHtml(str) {
         if (!iso) return '';
         const [y, m, d] = iso.split('-').map(Number);
         const date = new Date(y, m - 1, d); // local-time constructor, not new Date(iso)
-        return date.toLocaleDateString('en-US', { month: 'short', day: '2-digit' });
+        return date.toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' });
     }
 
     function isFutureDate(iso) {
