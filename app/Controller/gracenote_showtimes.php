@@ -21,6 +21,24 @@ if (empty($_SESSION['user_id'])) {
     exit;
 }
 
+/**
+ * Strip known Gracenote format/presentation suffixes (IMAX, 3D, 2D, etc.)
+ * so format variants match their base-title watchlist entry.
+ * Used ONLY for matching — raw $title is preserved for display so
+ * format variants still show as distinct entries in the UI.
+ */
+function stripFormatTag(string $title): string {
+    // IMAX/format-experience suffix, with optional trailing detail (e.g. "in 70mm Film")
+    $title = preg_replace(
+        '/:\s*(The|An)\s+IMAX\s+\d?D?\s*Experience(\s+in\s+.+?\s+Film)?$/i',
+        '',
+        $title
+    );
+    // standalone 3D/2D suffix
+    $title = preg_replace('/\s+[23]D$/', '', $title);
+    return trim($title);
+}
+
 // Resolve requested showtime date
 $rawDate = trim($_GET['date'] ?? '');
 $showtimeDate = preg_match('/^\d{4}-\d{2}-\d{2}$/', $rawDate)
@@ -122,13 +140,17 @@ if (empty($allShowing)) {
     exit;
 }
 
-// Cross-reference against watchlist
+// Cross-reference against watchlist.
+// Matching uses the format-tag-stripped title so e.g. "The Odyssey: The IMAX 2D
+// Experience" matches a watchlist entry of "The Odyssey". Display later uses the
+// raw $title, so format variants still render as distinct entries in the UI.
 $matched = [];
 $allTitles = [];
 foreach ($allShowing as $film) {
     $title = $film['title'] ?? '';
     $allTitles[] = $title;
-    if (empty($watchlistTitles) || in_array(mb_strtolower(trim($title)), $watchlistTitles, true)) {
+    $normalizedTitle = mb_strtolower(stripFormatTag($title));
+    if (empty($watchlistTitles) || in_array($normalizedTitle, $watchlistTitles, true)) {
         $matched[] = $film;
     }
 }

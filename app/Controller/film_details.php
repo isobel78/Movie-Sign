@@ -102,19 +102,6 @@ foreach (array_slice($data['credits']['cast'] ?? [], 0, 8) as $person) {
     ];
 }
 
-$usProviders = $data['watch/providers']['results']['US'] ?? null;
-$providers = ['flatrate' => [], 'rent' => [], 'buy' => []];
-if ($usProviders) {
-    foreach (['flatrate', 'rent', 'buy'] as $key) {
-        foreach (($usProviders[$key] ?? []) as $p) {
-            $providers[$key][] = [
-                'name' => $p['provider_name'] ?? '',
-                'logo_url' => !empty($p['logo_path']) ? $LOGO_BASE . $p['logo_path'] : null,
-            ];
-        }
-    }
-}
-
 echo json_encode([
     'id'          => $data['id'] ?? null,
     'title'       => $data['title'] ?? 'Unknown',

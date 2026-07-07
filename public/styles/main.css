@@ -351,6 +351,13 @@ main {
     background: rgba(255,255,255,0.1);
 }
 
+/* Mobile-only back button */
+.btn-back-mobile { display: none; }
+
+@media (max-width: 600px) {
+    .btn-back-mobile { display: inline-block; }
+}
+
 /* SHOWTIMES SECTION  */
 /* Label row: "We've Got Movie Sign!" + button */
 .showtimes-label {
@@ -397,11 +404,6 @@ main {
     font-size: 0.82rem;
     opacity: 0.7;
     margin-top: 0.5rem;
-}
-
-.showtimes-empty-icon {
-    font-size: 2.4rem;
-    margin-bottom: 0.6rem;
 }
 
 .showtimes-error {
@@ -627,7 +629,7 @@ a.wordmark:hover {
     border: 1px solid rgba(255,255,255,0.15);
     color: rgba(255,255,255,0.55);
     border-radius: 6px;
-    padding: 0.3rem 0.75rem;
+    padding: 0.3rem 0.3rem;
     font-size: 0.8rem;
     font-weight: 600;
     cursor: pointer;
@@ -934,6 +936,86 @@ body.film-overlay-lock { overflow: hidden; }
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     padding: 2.5rem 1rem; text-align: center; color: var(--sub); gap: 0.75rem;
 }
+
+/* ── Emergency lever link (empty showtimes state -> streaming check) ── */
+.lever-link {
+    display: inline-block;
+    margin-top: 0.75rem;
+    padding: 0.55rem 1.1rem;
+    background: rgba(232,24,42,0.12);
+    border: 1px solid var(--red);
+    border-radius: 8px;
+    color: var(--red);
+    font-family: var(--font-display);
+    font-size: 1rem;
+    letter-spacing: 0.04em;
+    text-decoration: none;
+    transition: background 0.15s, color 0.15s;
+}
+.lever-link:hover { background: var(--red); color: #fff; }
+
+/* ── Streaming check page ── */
+.section-head {
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    letter-spacing: 0.08em;
+    color: var(--sub);
+    margin: 1.5rem 0 0.75rem;
+}
+.alert-info {
+    background: rgba(245,197,66,0.08);
+    border: 1px solid rgba(245,197,66,0.3);
+    color: var(--yellow);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+}
+.alert-error {
+    background: rgba(232,24,42,0.13);
+    border: 1px solid #7a111e;
+    color: #ff9499;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+}
+.watch-check-card {
+    display: flex;
+    gap: 1rem;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+.watch-check-poster {
+    width: 70px;
+    height: 105px;
+    object-fit: cover;
+    border-radius: 6px;
+    flex-shrink: 0;
+}
+.watch-check-poster-placeholder {
+    width: 70px;
+    height: 105px;
+    border-radius: 6px;
+    background: var(--panel2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.6rem;
+    flex-shrink: 0;
+}
+.watch-check-title {
+    font-weight: 600;
+    font-size: 1rem;
+    margin-bottom: 0.35rem;
+}
+.watch-check-empty-page {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--sub);
+}
+.watch-check-empty-page .icon { font-size: 2.5rem; margin-bottom: 0.75rem; }
  
 /* Mobile: bottom sheet, since mobile is the primary way this app gets used */
 @media (max-width: 600px) {

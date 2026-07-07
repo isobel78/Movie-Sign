@@ -326,8 +326,6 @@ elseif ($action === 'forgot_password') {
             $mail->send();
         } catch (Exception $e) {
             error_log('MovieSign password reset mailer error: ' . $mail->ErrorInfo);
-            redirect_with_msg('../../public/forgot_password.php', 'error',
-                'Mailer failed: ' . $mail->ErrorInfo);
         }
     }
 

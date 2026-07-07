@@ -50,7 +50,7 @@ ob_start();
         <label for="password">New Password</label>
         <input type="password" id="password" name="password" required
                autocomplete="new-password" placeholder="••••••••"
-               minlength="8">
+               minlength="10">
     </div>
 
     <div class="field">

@@ -131,7 +131,6 @@ if (!empty($_SESSION['flash_message'])) {
     <div id="showtimes-panel">
         <div class="showtimes-idle">
             <p>Hit <strong>Check Showtimes</strong> to see which of your watchlist films are playing near you today.</p>
-            <!-- <p class="showtimes-note">📍 Uses your saved zip code location.</p> -->
             <br />
             <div class="showtime-date-row">
                 <label for="showtime-date" class="showtime-date-label">Date</label>
@@ -593,15 +592,18 @@ function escHtml(str) {
     if (showtimes.length === 0) {
         
         let msg = `<div class="showtimes-empty">
-            <div class="showtimes-empty-icon">🎭</div>
-            <p>None of your watchlist films are showing near you on this date.</p>`;
+            <p><strong>None of your watchlist films are showing near you on this date.</strong></p>`;
 
         if (allShowing.length > 0) {
             msg += `<p class="showtimes-note"><strong>Titles showing nearby:</strong><br>
                 <em>${allShowing.map(escHtml).join(', ')}</em></p><br>`;
         }
 
+        msg += `<a href="streaming_check.php" class="lever-link" onclick="">In case of Emergency, Pull the Lever!</a>`;
+
         msg += `<div style="margin-top:1.5rem; padding-top:1.25rem; border-top:1px solid rgba(255,255,255,0.1); text-align:center;">
+            <div class="showtimes-empty">
+            <p><strong>Or try a different date.</strong></p>
             <div class="showtime-date-row">
                 <label for="showtime-date-empty" class="showtime-date-label">Date</label>
                 <input type="date" id="showtime-date-empty" class="showtime-date-input" value="${escHtml(selectedDate)}" autocomplete="off">

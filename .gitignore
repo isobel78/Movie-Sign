@@ -2,6 +2,7 @@
 .DS_Store
 
 .vscode/launch.json
+.vscode/*
 
 # config files
 app/Model/db_config.php
@@ -9,6 +10,9 @@ app/Model/movieglu_config.php
 app/Model/TMDB_config.php
 app/Model/mail_config.php
 app/Model/gracenote_config.php
+
+# log files
+app/logs/*
 
 # Admin debug page
 admin_gracenote.php
